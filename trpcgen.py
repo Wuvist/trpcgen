@@ -15,6 +15,8 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java"],
+                   help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
 
@@ -23,6 +25,13 @@ args = parser.parse_args()
 def handle_struct(module, loader):
 	for struct in module.structs:
 		print struct
+
+	tpl = open('tpl/go.tmpl', 'r').read().decode("utf8")
+	t = Template(tpl, searchList=[{"namespace": namespace, "filename": filename, "obj": obj}])
+	code = str(t)
+
+	write_file(out_path + namespace + '/gen_' + obj.name.value.lower() + ".go", code)
+
 
 def handle_service(module, loader):
 	for service in module.services:
