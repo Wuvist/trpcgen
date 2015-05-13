@@ -5,8 +5,8 @@ package $loader.namespaces.java;
  * Don't change manually
  */
 
-public class $obj.name.value {
+public class $obj.get_name {
 	#for field in $obj.fields
-    public $field.type $field.name.value;
+    public $field.type_java $field.name.value;
     #end for
 }

@@ -22,16 +22,27 @@ parser.add_argument('output_folder_path', metavar='output_folder_path', type=str
 
 args = parser.parse_args()
 
+def write_file(fname, content):
+	dir = path.dirname(fname)
+	if not path.exists(dir):
+		os.makedirs(dir)
+
+	with open(fname, "w") as f:
+		f.write(content)
+
+lang_ext = {
+	"java": ".java"
+}
+
 def handle_struct(module, loader):
-	for struct in module.structs:
-		print struct
+	for obj in module.structs:
+		tpl_path = os.path.join('tpl', args.lang, "struct.%s_tpl" % args.lang)
 
-	tpl = open('tpl/go.tmpl', 'r').read().decode("utf8")
-	t = Template(tpl, searchList=[{"namespace": namespace, "filename": filename, "obj": obj}])
-	code = str(t)
-
-	write_file(out_path + namespace + '/gen_' + obj.name.value.lower() + ".go", code)
-
+		tpl = open(tpl_path, 'r').read().decode("utf8")
+		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
+		code = str(t)
+		out_path = os.path.join(args.output_folder_path, "gen_" + obj.name.value + lang_ext[args.lang])
+		write_file(out_path, code)
 
 def handle_service(module, loader):
 	for service in module.services:
@@ -68,6 +79,9 @@ def main(thrift_idl):
 	# 	mkdir(out_path + namespace)
 	# with open(out_path + namespace + '/gen_init.go', "w") as fp:
 	# 	fp.write(code)
+
+	if args.lang == None:
+		args.lang = "java"
 
 	for module in loader.modules.values():
 		if args.action == "struct":

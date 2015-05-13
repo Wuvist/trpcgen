@@ -12,18 +12,29 @@ import traceback
 
 thrift_file = ""
 
+def extend_field(field):
+	def type_java():
+		type_str = str(field.type)
+		if type_str == "i32":
+			return "int"
+		if type_str == "string":
+			return "String"
+		return type_str
+	field.type_java = type_java
+
+def extend_struct(obj):
+	def get_name():
+		return obj.name.value
+	obj.get_name = get_name 
+
+	for field in obj.fields:
+		extend_field(field)
 
 def init_module(module):
 	module.consts = []
-	module.typedef = []
 	module.enums = []
 	module.structs = []
 	module.services = []
-
-	for node in [i for i in module.values() if isinstance(i, ast.Typedef)]:
-		node.go_type = type_translate(node.type)
-		module.typedefs.append(node)
-		typedef[str(node.name)] = node.type
 
 	for node in module.values():
 		if not isinstance(node, ast.Node):
@@ -33,6 +44,7 @@ def init_module(module):
 		elif isinstance(node, ast.Const):
 			module.consts.append(transform_const(node))
 		elif isinstance(node, ast.Struct):
+			extend_struct(node)
 			module.structs.append(node)
 		elif isinstance(node, ast.Service):
 			module.services.append(node)
