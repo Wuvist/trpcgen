@@ -38,7 +38,7 @@ public class $obj.get_name {
         queue = Volley.newRequestQueue(queueContext);
     }
 
-    private $obj.get_name()
+    private $(obj.get_name)()
     {
         // Constructor hidden because this is a singleton
     }
