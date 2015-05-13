@@ -12,14 +12,24 @@ import traceback
 
 thrift_file = ""
 
+java_types = {
+	"i32": "int",
+	"string": "String"
+}
+
+def to_java_type(type_str):
+	if java_types.has_key(type_str):
+		return java_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "ArrayList" + type_str[4:]
+	return type_str
+
 def extend_field(field):
 	def type_java():
 		type_str = str(field.type)
-		if type_str == "i32":
-			return "int"
-		if type_str == "string":
-			return "String"
-		return type_str
+		return to_java_type(type_str)
+
 	field.type_java = type_java
 
 def extend_struct(obj):
@@ -29,6 +39,31 @@ def extend_struct(obj):
 
 	for field in obj.fields:
 		extend_field(field)
+
+def extend_func(func):
+	# final String originCode, final int offset, final int limit, final Listener<ArrayList<TCollection>> listener
+
+	def get_java_params():
+		params = []
+		for p in func.arguments:
+			params.append("final %s %s" % (to_java_type(str(p.type)), p.name))
+
+		params.append("final Listener<%s> listener" % (to_java_type(str(func.type))))
+		return ", ".join(params)
+	func.get_java_params = get_java_params
+
+	def get_java_return_type():
+		return to_java_type(str(func.type))
+	func.get_java_return_type = get_java_return_type
+
+
+def extend_service(obj):
+	def get_name():
+		return obj.name.value
+	obj.get_name = get_name
+
+	for func in obj.functions:
+		extend_func(func)
 
 def init_module(module):
 	module.consts = []
@@ -47,6 +82,7 @@ def init_module(module):
 			extend_struct(node)
 			module.structs.append(node)
 		elif isinstance(node, ast.Service):
+			extend_service(node)
 			module.services.append(node)
 
 	## process enum labels

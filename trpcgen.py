@@ -45,40 +45,17 @@ def handle_struct(module, loader):
 		write_file(out_path, code)
 
 def handle_service(module, loader):
-	for service in module.services:
-		print service.name
-		for f in service.functions:
-			print f
+	for obj in module.services:
+		tpl_path = os.path.join('tpl', args.lang, "service.%s_tpl" % args.lang)
 
-	# if len(module.consts) > 0:
-	# 	tpl = open('tmpl/go_const.tmpl', 'r').read()
-	# 	t = Template(tpl, searchList=[{"namespace": namespace, "objs": module.consts}])
-	# 	if not path.exists(out_path + namespace):
-	# 		mkdir(out_path + namespace)
-	# 	with open(out_path + "%s/gen_%s_const.go" % (namespace, namespace), "w") as fp:
-	# 		fp.write(str(t))
-
-	# if len(module.enums) > 0:
-	# 	tpl = open('tmpl/go_enum.tmpl', 'r').read()
-	# 	t = Template(tpl, searchList=[{
-	# 		"namespace": namespace,
-	# 		"objs": module.enums,
-	# 		"name": filename,
-	# 	}])
-	# 	if not path.exists(out_path + namespace):
-	# 		mkdir(out_path + namespace)
-	# 	with open(out_path + "%s/gen_%s_enum.go" % (namespace, namespace), "w") as fp:
-	# 		fp.write(str(t))
+		tpl = open(tpl_path, 'r').read().decode("utf8")
+		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
+		code = str(t)
+		out_path = os.path.join(args.output_folder_path, "gen_service_" + obj.name.value + lang_ext[args.lang])
+		write_file(out_path, code)
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)
-	# tpl = open('tmpl/go_package.tmpl', 'r').read()
-	# t = Template(tpl, searchList=[{"namespace": namespace}])
-	# code = unicode(t)
-	# if not path.exists(out_path + namespace):
-	# 	mkdir(out_path + namespace)
-	# with open(out_path + namespace + '/gen_init.go', "w") as fp:
-	# 	fp.write(code)
 
 	if args.lang == None:
 		args.lang = "java"
