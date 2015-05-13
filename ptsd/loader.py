@@ -36,7 +36,7 @@ class Loader(object):
     self.thrifts = {}
     self.modules = {}
     self.parser = Parser()
-    self.namespace = ""
+    self.namespaces = {}
     self.process(self.root)
 
   def process(self, root):
@@ -50,11 +50,8 @@ class Loader(object):
     with open(real_root) as fp:
       parent = self.thrifts[real_root] = self.parser.parse(fp.read())
     
-    if self.namespace == "":
-        for space in parent.namespaces:
-          if space.language_id == "*":
-            self.namespace = space.name
-            break
+    for space in parent.namespaces:
+      self.namespaces[space.language_id] = space.name
 
     parent_name = os.path.basename(real_root)
     parent_name, _ = os.path.splitext(parent_name)

@@ -10,7 +10,6 @@ from Cheetah.Template import Template
 from os import path, mkdir
 import traceback
 
-namespace = ""
 thrift_file = ""
 
 
@@ -49,21 +48,10 @@ def init_module(module):
 				obj.labels[i.tag] = label_anno[0]
 
 def load_thrift(thrift_idl):
-	global thrift_file, namespace
+	global thrift_file
 	thrift_file = thrift_idl
-	try:
-		loader = Loader(thrift_idl, lambda x: x)
-		if loader.namespace == "":
-			print 'general namespace not found, please add `namespace * XXXX` to ' + thrift_file + " and retry"
-			sys.exit(1)
+	loader = Loader(thrift_idl, lambda x: x)
 
-		loader.namespace = str(loader.namespace)
-		namespace = loader.namespace
-
-		for module in loader.modules.values():
-			init_module(module)
-	except Exception, e:
-		print "error", thrift_file
-		traceback.print_exc()
-		raise e
+	for module in loader.modules.values():
+		init_module(module)
 	return loader
