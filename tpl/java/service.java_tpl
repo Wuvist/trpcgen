@@ -32,10 +32,10 @@ public class $obj.get_name {
     private static int msgID = 1;
     private static RequestQueue queue;
 
-    public static void initQueue(Context context, String serviceUrl)
+    public static void init(Context queueContext, String serviceUrl)
     {
         ServiceUrl = serviceUrl;
-        queue = Volley.newRequestQueue(context);
+        queue = Volley.newRequestQueue(queueContext);
     }
 
     private $obj.get_name()
