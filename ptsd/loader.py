@@ -52,7 +52,7 @@ class Loader(object):
     
     if self.namespace == "":
         for space in parent.namespaces:
-          if space.language_id == "go":
+          if space.language_id == "*":
             self.namespace = space.name
             break
 
