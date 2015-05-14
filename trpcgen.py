@@ -34,9 +34,11 @@ lang_ext = {
 	"java": ".java"
 }
 
+base_path = os.path.dirname(os.path.realpath(__file__))
+
 def handle_struct(module, loader):
 	for obj in module.structs:
-		tpl_path = os.path.join('tpl', args.lang, "struct.%s_tpl" % args.lang)
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "struct.%s_tpl" % args.lang)
 
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
@@ -46,7 +48,7 @@ def handle_struct(module, loader):
 
 def handle_service(module, loader):
 	for obj in module.services:
-		tpl_path = os.path.join('tpl', args.lang, "service.%s_tpl" % args.lang)
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "service.%s_tpl" % args.lang)
 
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
