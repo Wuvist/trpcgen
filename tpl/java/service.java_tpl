@@ -54,6 +54,7 @@ public class $obj.get_name {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        #if $func.get_java_return_type != "void"
                         final JSONObject jsonObject;
                         try{
                             jsonObject = new JSONObject(response);
@@ -67,6 +68,7 @@ public class $obj.get_name {
                             Log.d("ex", ex.toString());
                             listener.onResponse(new $(func.get_java_return_type)());
                         }
+                        #end if
                     }
                 }, new Response.ErrorListener() {
             @Override

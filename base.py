@@ -13,6 +13,7 @@ import traceback
 thrift_file = ""
 
 java_types = {
+	"bool": "boolean",
 	"i32": "int",
 	"string": "String"
 }
@@ -22,7 +23,7 @@ def to_java_type(type_str):
 		return java_types[type_str]
 
 	if type_str.startswith("list<"):
-		return "ArrayList" + type_str[4:]
+		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
 	return type_str
 
 def extend_field(field):
@@ -48,7 +49,9 @@ def extend_func(func):
 		for p in func.arguments:
 			params.append("final %s %s" % (to_java_type(str(p.type)), p.name))
 
-		params.append("final Listener<%s> listener" % (to_java_type(str(func.type))))
+		return_type = to_java_type(str(func.type))
+		if return_type != "void":
+			params.append("final Listener<%s> listener" % (return_type))
 		return ", ".join(params)
 	func.get_java_params = get_java_params
 
