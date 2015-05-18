@@ -11,9 +11,9 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,20 +27,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class $obj.get_name {
-    private static String ServiceUrl;
     private static final Gson gson = new Gson();
+    private static String ServiceUrl;
     private static int msgID = 1;
     private static RequestQueue queue;
 
-    public static void init(Context queueContext, String serviceUrl)
-    {
-        ServiceUrl = serviceUrl;
-        queue = Volley.newRequestQueue(queueContext);
+    private $(obj.get_name)() {
+        // Constructor hidden because this is a singleton
     }
 
-    private $(obj.get_name)()
-    {
-        // Constructor hidden because this is a singleton
+    public static void init(Context queueContext, String serviceUrl) {
+        ServiceUrl = serviceUrl;
+        queue = Volley.newRequestQueue(queueContext);
     }
 
     private static String getMsgID() {
@@ -56,15 +54,16 @@ public class $obj.get_name {
                     public void onResponse(String response) {
                         #if $func.get_java_return_type != "void"
                         final JSONObject jsonObject;
-                        try{
+                        try {
                             jsonObject = new JSONObject(response);
 
                             $func.get_java_return_type result;
 
-                            Type listType = new TypeToken<$func.get_java_return_type>() {}.getType();
+                            Type listType = new TypeToken<$func.get_java_return_type>() {
+                            }.getType();
                             result = gson.fromJson(jsonObject.getJSONArray("result").toString(), listType);
                             listener.onResponse(result);
-                        }catch (JSONException ex){
+                        } catch (JSONException ex) {
                             Log.d("ex", ex.toString());
                             listener.onResponse(new $(func.get_java_return_type)());
                         }
@@ -75,7 +74,7 @@ public class $obj.get_name {
             public void onErrorResponse(VolleyError error) {
 
             }
-        }){
+        }) {
             @Override
             public byte[] getBody() {
                 final ArrayList<Object> params = new ArrayList<Object>();
