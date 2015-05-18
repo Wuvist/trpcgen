@@ -18,6 +18,12 @@ java_types = {
 	"string": "String"
 }
 
+java_ref_types = {
+	"bool": "Boolean",
+	"i32": "Integer",
+	"string": "String"
+}
+
 def to_java_type(type_str):
 	if java_types.has_key(type_str):
 		return java_types[type_str]
@@ -26,10 +32,21 @@ def to_java_type(type_str):
 		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
 	return type_str
 
+def to_java_ref_type(type_str):
+	if java_ref_types.has_key(type_str):
+		return java_ref_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "java.util.ArrayList<" + to_java_ref_type(type_str[5:-1]) + ">"
+	return type_str
+
 def extend_field(field):
 	def type_java():
 		type_str = str(field.type)
 		return to_java_type(type_str)
+	def type_java_ref():
+		type_str = str(field.type)
+		return to_java_ref_type(type_str)
 
 	field.type_java = type_java
 
@@ -49,14 +66,14 @@ def extend_func(func):
 		for p in func.arguments:
 			params.append("final %s %s" % (to_java_type(str(p.type)), p.name))
 
-		return_type = to_java_type(str(func.type))
+		return_type = to_java_ref_type(str(func.type))
 		if return_type != "void":
 			params.append("final Listener<%s> listener" % (return_type))
 		return ", ".join(params)
 	func.get_java_params = get_java_params
 
 	def get_java_return_type():
-		return to_java_type(str(func.type))
+		return to_java_ref_type(str(func.type))
 	func.get_java_return_type = get_java_return_type
 
 

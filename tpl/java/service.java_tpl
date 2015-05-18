@@ -26,13 +26,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class $obj.get_name {
+public class $(obj.get_name)Service {
     private static final Gson gson = new Gson();
     private static String ServiceUrl;
     private static int msgID = 1;
     private static RequestQueue queue;
 
-    private $(obj.get_name)() {
+    private $(obj.get_name)Service() {
         // Constructor hidden because this is a singleton
     }
 
@@ -65,7 +65,7 @@ public class $obj.get_name {
                             listener.onResponse(result);
                         } catch (JSONException ex) {
                             Log.d("ex", ex.toString());
-                            listener.onResponse(new $(func.get_java_return_type)());
+                            listener.onResponse(null);
                         }
                         #end if
                     }

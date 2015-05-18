@@ -53,7 +53,7 @@ def handle_service(module, loader):
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
-		out_path = os.path.join(args.output_folder_path, obj.name.value + lang_ext[args.lang])
+		out_path = os.path.join(args.output_folder_path, obj.name.value + "Service" + lang_ext[args.lang])
 		write_file(out_path, code)
 
 def main(thrift_idl):
