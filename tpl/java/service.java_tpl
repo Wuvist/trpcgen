@@ -13,7 +13,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -48,15 +48,12 @@ public class $(obj.get_name)Service {
 
 #for func in $obj.functions
     public static void $(func.name)($func.get_java_params) {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, ServiceUrl,
-                new Response.Listener<String>() {
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceUrl,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject jsonObject) {
                         #if $func.get_java_return_type != "void"
-                        final JSONObject jsonObject;
                         try {
-                            jsonObject = new JSONObject(response);
-
                             $func.get_java_return_type result;
 
                             Type listType = new TypeToken<$func.get_java_return_type>() {
