@@ -13,8 +13,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.daigou.sg.rpc.RpcRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -48,7 +48,7 @@ public class $(obj.get_name)Service {
 
 #for func in $obj.functions
     public static void $(func.name)($func.get_java_params) {
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, ServiceUrl,
+        RpcRequest req = new RpcRequest(Request.Method.POST, ServiceUrl,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -58,10 +58,15 @@ public class $(obj.get_name)Service {
 
                             Type listType = new TypeToken<$func.get_java_return_type>() {
                             }.getType();
+                            #if $func.get_java_return_type.startswith("java.util.ArrayList")
                             result = gson.fromJson(jsonObject.getJSONArray("result").toString(), listType);
+                            #else
+                            result = gson.fromJson(jsonObject.getJSONObject("result").toString(), listType);
+                            #end if
                             listener.onResponse(result);
                         } catch (JSONException ex) {
                             Log.d("ex", ex.toString());
+                            Log.d("jsonObject", jsonObject.toString());
                             listener.onResponse(null);
                         }
                         #end if
@@ -69,7 +74,9 @@ public class $(obj.get_name)Service {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                #if $func.get_java_return_type != "void"
+                listener.onResponse(null);
+                #end if
             }
         }) {
             @Override
@@ -87,7 +94,7 @@ public class $(obj.get_name)Service {
                 return gson.toJson(msg).getBytes(Charset.forName("UTF-8"));
             }
         };
-        queue.add(stringRequest);
+        queue.add(req);
     }
 
 #end for

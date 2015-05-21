@@ -15,12 +15,14 @@ thrift_file = ""
 java_types = {
 	"bool": "boolean",
 	"i32": "int",
+	"i64": "long",
 	"string": "String"
 }
 
 java_ref_types = {
 	"bool": "Boolean",
 	"i32": "Integer",
+	"i64": "Long",
 	"string": "String"
 }
 
