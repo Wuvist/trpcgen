@@ -56,11 +56,15 @@ public class $(obj.get_name)Service {
                         try {
                             $func.get_java_return_type result;
 
+                            #if $func.get_java_return_type == "String"
+                            result = jsonObject.getString("result");
+                            #else if $func.get_java_return_type.startswith("java.util.ArrayList")
                             Type listType = new TypeToken<$func.get_java_return_type>() {
                             }.getType();
-                            #if $func.get_java_return_type.startswith("java.util.ArrayList")
                             result = gson.fromJson(jsonObject.getJSONArray("result").toString(), listType);
                             #else
+                            Type listType = new TypeToken<$func.get_java_return_type>() {
+                            }.getType();
                             result = gson.fromJson(jsonObject.getJSONObject("result").toString(), listType);
                             #end if
                             listener.onResponse(result);
