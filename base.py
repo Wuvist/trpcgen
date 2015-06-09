@@ -43,12 +43,17 @@ def to_java_ref_type(type_str):
 	return type_str
 
 def extend_field(field):
+	type_str = str(field.type)
+
 	def type_java():
-		type_str = str(field.type)
 		return to_java_type(type_str)
 	def type_java_ref():
-		type_str = str(field.type)
 		return to_java_ref_type(type_str)
+
+	field.is_list_type = False
+	if type_str.startswith("list<"):
+		field.is_list_type = True
+		field.inner_type_java = to_java_type(type_str[5:-1])
 
 	field.type_java = type_java
 
