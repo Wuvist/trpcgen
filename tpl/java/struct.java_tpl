@@ -32,8 +32,7 @@ public class $obj.get_name {
         // Iterate over object fields:
         while (jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jp.getCurrentName();
-            // Let's move to value
-            jp.nextToken();
+            
             if (false) {
             #for field in $obj.fields
             } else if (fieldName.equals("$field.name.value")) {
@@ -45,12 +44,16 @@ public class $obj.get_name {
                 #end if
             #else
                 #if $field.type_java == "String"
+                jp.nextToken();
                 result.$field.name.value = jp.getText();
                 #else if $field.type_java == "int"
+                jp.nextToken();
                 result.$field.name.value = jp.getIntValue();
                 #else if $field.type_java == "double"
+                jp.nextToken();
                 result.$field.name.value = jp.getDoubleValue();
                 #else if $field.type_java == "boolean"
+                jp.nextToken();
                 result.$field.name.value = jp.getBooleanValue();
                 #else 
                 result.$field.name.value = $(field.type_java).fromJSON(jp);

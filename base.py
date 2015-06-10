@@ -81,7 +81,14 @@ def extend_func(func):
 
 	def get_java_return_type():
 		return to_java_ref_type(str(func.type))
+
+	def get_java_return_inner_type():
+		type_str = str(func.type)
+		if type_str.startswith("list<"):
+			return to_java_ref_type(type_str[5:-1])
+		return type_str
 	func.get_java_return_type = get_java_return_type
+	func.get_java_return_inner_type = get_java_return_inner_type
 
 
 def extend_service(obj):

@@ -14,14 +14,12 @@ import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.common.utils.JsonUtils;
 import com.daigou.sg.rpc.RpcRequest;
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,28 +47,29 @@ public class $(obj.get_name)Service {
 #for func in $obj.functions
     public static void $(func.name)($func.get_java_params) {
         RpcRequest req = new RpcRequest(Request.Method.POST, ServiceUrl,
-                new Response.Listener<JSONObject>() {
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject jsonObject) {
+                    public void onResponse(String response) {
                         #if $func.get_java_return_type != "void"
                         try {
                             $func.get_java_return_type result;
-
+                            JsonParser jp = JsonUtils.getJsonRpcResult(response);
                             #if $func.get_java_return_type == "String"
-                            result = jsonObject.getString("result");
+                            result = jp.getText();
+                            #else if $func.get_java_return_type == "Integer"
+                            result = jp.getIntValue();
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList")
-                            Type listType = new TypeToken<$func.get_java_return_type>() {
-                            }.getType();
-                            result = gson.fromJson(jsonObject.getJSONArray("result").toString(), listType);
+                            result = $(func.get_java_return_inner_type).fromJSONArray(jp);
                             #else
-                            Type listType = new TypeToken<$func.get_java_return_type>() {
-                            }.getType();
-                            result = gson.fromJson(jsonObject.getJSONObject("result").toString(), listType);
+                            result = $(func.get_java_return_type).fromJSON(jp);
                             #end if
+                            
+                            jp.close();
+
                             listener.onResponse(result);
-                        } catch (JSONException ex) {
+                        } catch (IOException ex) {
                             Log.d("ex", ex.toString());
-                            Log.d("jsonObject", jsonObject.toString());
+                            Log.d("jsonObject", response);
                             listener.onResponse(null);
                         }
                         #end if
