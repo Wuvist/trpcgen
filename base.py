@@ -24,6 +24,11 @@ objc_types = {
 	"string": "(nonatomic, copy) NSString *"
 }
 
+objc_types_for_param = {
+	"i32": "int",
+	"string": "NSString *"
+}
+
 java_ref_types = {
 	"bool": "Boolean",
 	"i32": "Integer",
@@ -44,8 +49,16 @@ def to_objc_type(type_str):
 		return objc_types[type_str]
 
 	if type_str.startswith("list<"):
-		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
-	return type_str
+		return "NSArray *"
+	return type_str + " *"
+
+def to_objc_type_for_param(type_str):
+	if objc_types_for_param.has_key(type_str):
+		return objc_types_for_param[type_str]
+
+	if type_str.startswith("list<"):
+		return "NSArray *"
+	return type_str + " *"
 
 def to_java_ref_type(type_str):
 	if java_ref_types.has_key(type_str):
@@ -94,6 +107,42 @@ def extend_func(func):
 			params.append("final Listener<%s> listener" % (return_type))
 		return ", ".join(params)
 	func.get_java_params = get_java_params
+
+	def get_objc_params():
+		params = []
+		if len(func.arguments) > 0:
+			p = func.arguments[0]
+			param_type = to_objc_type_for_param(str(p.type))
+			params.append("(%s)%s" % (param_type, p.name))
+
+		for p in func.arguments[1:]:
+			param_type = to_objc_type_for_param(str(p.type))
+			params.append("%s:(%s)%s" % (p.name, param_type, p.name))
+
+		return_type = to_objc_type_for_param(str(func.type))
+		if return_type != "void":
+			params.append("success:(void (^)(%s))success" % (return_type + "result"))
+		return "\n".join(params)
+	func.get_objc_params = get_objc_params
+
+	def get_objc_params_for_call():
+		params = []
+		if len(func.arguments) > 0:
+			p = func.arguments[0]
+			params.append(":%s" % (p.name))
+
+		for p in func.arguments[1:]:
+			params.append("%s:%s" % (p.name, p.name))
+
+		params.append("success:success")
+		return " ".join(params)
+	func.get_objc_params_for_call = get_objc_params_for_call
+
+	def is_arg_objc_obj(p):
+		param_type = to_objc_type_for_param(str(p.type))
+
+		return param_type.endswith("*")
+	func.is_arg_objc_obj = is_arg_objc_obj
 
 	def get_java_return_type():
 		return to_java_ref_type(str(func.type))
