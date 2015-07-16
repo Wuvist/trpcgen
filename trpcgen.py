@@ -15,7 +15,7 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "objc"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
@@ -31,30 +31,43 @@ def write_file(fname, content):
 		f.write(content)
 
 lang_ext = {
-	"java": ".java"
+	"java": [".java"],
+	"objc": [".m", ".h"]
 }
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 
 def handle_struct(module, loader):
-	for obj in module.structs:
-		tpl_path = os.path.join(base_path, 'tpl', args.lang, "struct.%s_tpl" % args.lang)
+	fileExts = lang_ext[args.lang]
+	def genFile(ext):
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "struct.%s_tpl" % ext[1:])
 
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
-		out_path = os.path.join(args.output_folder_path, obj.name.value + lang_ext[args.lang])
+		out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
 		write_file(out_path, code)
+
+	for obj in module.structs:
+		for ext in fileExts:
+			genFile(ext)
 
 def handle_service(module, loader):
-	for obj in module.services:
-		tpl_path = os.path.join(base_path, 'tpl', args.lang, "service.%s_tpl" % args.lang)
+	fileExts = lang_ext[args.lang]
+
+	def genFile(ext):
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "service.%s_tpl" % ext[1:])
 
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
-		out_path = os.path.join(args.output_folder_path, obj.name.value + "Service" + lang_ext[args.lang])
+		out_path = os.path.join(args.output_folder_path, obj.name.value + "Service" + ext)
 		write_file(out_path, code)
+
+	for obj in module.services:
+		for ext in fileExts:
+			genFile(ext)
+
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)

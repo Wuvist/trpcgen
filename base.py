@@ -19,6 +19,11 @@ java_types = {
 	"string": "String"
 }
 
+objc_types = {
+	"i32": "int ",
+	"string": "(nonatomic, copy) NSString *"
+}
+
 java_ref_types = {
 	"bool": "Boolean",
 	"i32": "Integer",
@@ -29,6 +34,14 @@ java_ref_types = {
 def to_java_type(type_str):
 	if java_types.has_key(type_str):
 		return java_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
+	return type_str
+
+def to_objc_type(type_str):
+	if objc_types.has_key(type_str):
+		return objc_types[type_str]
 
 	if type_str.startswith("list<"):
 		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
@@ -47,6 +60,8 @@ def extend_field(field):
 
 	def type_java():
 		return to_java_type(type_str)
+	def type_objc():
+		return to_objc_type(type_str)
 	def type_java_ref():
 		return to_java_ref_type(type_str)
 
@@ -56,6 +71,7 @@ def extend_field(field):
 		field.inner_type_java = to_java_type(type_str[5:-1])
 
 	field.type_java = type_java
+	field.type_objc = type_objc
 
 def extend_struct(obj):
 	def get_name():
