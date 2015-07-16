@@ -71,6 +71,8 @@ def handle_service(module, loader):
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)
+	if loader.namespaces.has_key("objc"):
+		base.objc_namespace = str(loader.namespaces["objc"])
 
 	if args.lang == None:
 		args.lang = "java"

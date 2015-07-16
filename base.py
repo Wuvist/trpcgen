@@ -11,6 +11,7 @@ from os import path, mkdir
 import traceback
 
 thrift_file = ""
+objc_namespace = ""
 
 java_types = {
 	"bool": "boolean",
@@ -50,7 +51,7 @@ def to_objc_type(type_str):
 
 	if type_str.startswith("list<"):
 		return "NSArray *"
-	return type_str + " *"
+	return objc_namespace + type_str[1:] + " *"
 
 def to_objc_type_for_param(type_str):
 	if objc_types_for_param.has_key(type_str):
@@ -58,7 +59,7 @@ def to_objc_type_for_param(type_str):
 
 	if type_str.startswith("list<"):
 		return "NSArray *"
-	return type_str + " *"
+	return objc_namespace + type_str[1:] + " *"
 
 def to_java_ref_type(type_str):
 	if java_ref_types.has_key(type_str):
@@ -73,8 +74,6 @@ def extend_field(field):
 
 	def type_java():
 		return to_java_type(type_str)
-	def type_objc():
-		return to_objc_type(type_str)
 	def type_java_ref():
 		return to_java_ref_type(type_str)
 
@@ -84,6 +83,9 @@ def extend_field(field):
 		field.inner_type_java = to_java_type(type_str[5:-1])
 
 	field.type_java = type_java
+	
+	def type_objc():
+		return to_objc_type(type_str)
 	field.type_objc = type_objc
 
 def extend_struct(obj):
@@ -91,8 +93,14 @@ def extend_struct(obj):
 		return obj.name.value
 	obj.get_name = get_name 
 
+	get_objc_struct_import = set()
 	for field in obj.fields:
 		extend_field(field)
+		field_type = field.type_objc()
+		if field_type.endswith("*") and not field_type.startswith("("):
+			get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
+	
+	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
 
 def extend_func(func):
 	# final String originCode, final int offset, final int limit, final Listener<ArrayList<TCollection>> listener
@@ -108,12 +116,18 @@ def extend_func(func):
 		return ", ".join(params)
 	func.get_java_params = get_java_params
 
+	def wrap_name(name):
+		if str(name) == "id":
+			return "Id"
+		return name
+
 	def get_objc_params():
 		params = []
+
 		if len(func.arguments) > 0:
 			p = func.arguments[0]
 			param_type = to_objc_type_for_param(str(p.type))
-			params.append("(%s)%s" % (param_type, p.name))
+			params.append("(%s)%s" % (param_type, wrap_name(p.name)))
 
 		for p in func.arguments[1:]:
 			param_type = to_objc_type_for_param(str(p.type))
@@ -129,7 +143,7 @@ def extend_func(func):
 		params = []
 		if len(func.arguments) > 0:
 			p = func.arguments[0]
-			params.append(":%s" % (p.name))
+			params.append("%s" % (wrap_name(p.name)))
 
 		for p in func.arguments[1:]:
 			params.append("%s:%s" % (p.name, p.name))
@@ -155,14 +169,26 @@ def extend_func(func):
 	func.get_java_return_type = get_java_return_type
 	func.get_java_return_inner_type = get_java_return_inner_type
 
-
 def extend_service(obj):
 	def get_name():
 		return obj.name.value
 	obj.get_name = get_name
 
+	get_objc_func_import = set()
 	for func in obj.functions:
 		extend_func(func)
+
+		for p in func.arguments:
+			param_type = to_objc_type_for_param(str(p.type))
+			if param_type.endswith("*") and not param_type.startswith("NS"):
+				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
+
+		return_type = to_objc_type_for_param(str(func.type))
+		if return_type.endswith("*") and not return_type.startswith("NS"):
+			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
+
+	obj.get_objc_func_import = "\n".join(get_objc_func_import)
+
 
 def init_module(module):
 	module.consts = []
