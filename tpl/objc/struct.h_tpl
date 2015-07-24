@@ -10,4 +10,6 @@ $obj.get_objc_struct_import
 @property $(field.type_objc)$field.name.value;
 #end for
 
++($(loader.namespaces.objc)$obj.get_name[1:] *)fromJSON:(id)responseObject;
++(NSArray *)fromJSONArray:(id)responseObject;
 @end

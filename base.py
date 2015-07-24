@@ -135,6 +135,8 @@ def extend_func(func):
 
 		return_type = to_objc_type_for_param(str(func.type))
 		if return_type != "void":
+			if not return_type.endswith("*"):
+				return_type = return_type + " "
 			params.append("success:(void (^)(%s))success" % (return_type + "result"))
 		return "\n".join(params)
 	func.get_objc_params = get_objc_params
