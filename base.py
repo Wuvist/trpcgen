@@ -97,7 +97,7 @@ def extend_struct(obj):
 	for field in obj.fields:
 		extend_field(field)
 		field_type = field.type_objc()
-		if field_type.endswith("*") and not field_type.startswith("("):
+		if objc_need_import_type(field_type):
 			get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
 	
 	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
@@ -180,15 +180,21 @@ def extend_service(obj):
 
 		for p in func.arguments:
 			param_type = to_objc_type_for_param(str(p.type))
-			if param_type.endswith("*") and not param_type.startswith("NS"):
+			if objc_need_import_type(param_type):
 				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
 
 		return_type = to_objc_type_for_param(str(func.type))
-		if return_type.endswith("*") and not return_type.startswith("NS"):
+		if objc_need_import_type(return_type):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
 
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
 
+def objc_need_import_type(type_str):
+	if type_str in ["int ", "(nonatomic, copy) NSString *"]:
+		return False
+	if type_str.endswith("*") and not type_str.startswith("NS"):
+		return True
+	return False
 
 def init_module(module):
 	module.consts = []
