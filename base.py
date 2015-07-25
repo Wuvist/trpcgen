@@ -100,10 +100,12 @@ def extend_struct(obj):
 	for field in obj.fields:
 		extend_field(field)
 		field_type = field.type_objc()
-		
-		if field.is_list_type and objc_need_import_type(field.inner_type_java):
-			extra_struct.add(field.inner_type_java)
-			get_objc_struct_import.add('#import "' + field.inner_type_java + '.h"')
+
+		if field.is_list_type:
+			# need to fix
+			if  not field.inner_type_java in ["int","double","bool","string"]:
+				extra_struct.add(field.inner_type_java)
+				get_objc_struct_import.add('#import "' + field.inner_type_java + '.h"')
 		else:
 			if objc_need_import_type(field_type):
 				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')

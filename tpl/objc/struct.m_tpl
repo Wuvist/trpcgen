@@ -17,9 +17,13 @@
     #else if str($field.type) == "double"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] doubleValue];
     #else if str($field.type) in $obj.extra_struct 
-    result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSON:responseObject];
+    result.$(field.name.value) = [$(loader.namespaces.objc)$(str($field.type)[6:-1]) fromJSON:responseObject];
     #else if str($field.type).startswith("list")
-    result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:[responseObject objectForKey:@"$(field.name.value)"]];
+        #if str($field.type)[5:-1] in $obj.extra_struct
+        result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:responseObject];
+        #else
+        result.$(field.name.value) = [responseObject array][$($field.inner_type_java)];
+        #end if
     #else 
     result.$(field.name.value) = [responseObject objectForKey:@"$(field.name.value)"];
     #end if
