@@ -22,7 +22,9 @@ java_types = {
 
 objc_types = {
 	"i32": "int ",
-	"string": "(nonatomic, copy) NSString *"
+	"string": "(nonatomic, copy) NSString *",
+	"double":"double ",
+	"bool":"bool ",
 }
 
 objc_types_for_param = {
@@ -83,7 +85,7 @@ def extend_field(field):
 		field.inner_type_java = to_java_type(type_str[5:-1])
 
 	field.type_java = type_java
-	
+
 	def type_objc():
 		return to_objc_type(type_str)
 	field.type_objc = type_objc
@@ -191,8 +193,11 @@ def extend_service(obj):
 				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
 
 		return_type = to_objc_type_for_param(str(func.type))
-		if objc_need_import_type(return_type):
+
+		if not str(func.type).startswith("list<") and objc_need_import_type(return_type):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
+		elif str(func.type).startswith("list<"):
+			get_objc_func_import.add('#import "' + str(func.type)[5:-1] + '.h"')
 
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
 

@@ -42,7 +42,9 @@ $obj.get_objc_func_import
         #if $func.get_java_return_type == "String"
         	success([responseObject stringValue]);
         #else if $func.get_java_return_type == "Integer"
-            success([responseObject intValue]);
+          success([responseObject intValue]);
+        #else if $func.get_java_return_type.startswith("java.util.ArrayList")
+          success([$func.get_java_return_inner_type fromJSONArray:responseObject]);  
         #end if
         }
         failure:^(AFHTTPRequestOperation *operation, NSError *error) {
