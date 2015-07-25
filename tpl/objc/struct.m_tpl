@@ -14,6 +14,8 @@
     #for field in $obj.fields
     #if str($field.type) == "i32"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] intValue];
+    #else if str($field.type) == "double"
+    result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] doubleValue];
     #else if str($field.type) in $obj.extra_struct 
     result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSON:responseObject];
     #else if str($field.type).startswith("list")
