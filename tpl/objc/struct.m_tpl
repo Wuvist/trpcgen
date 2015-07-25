@@ -20,9 +20,9 @@
     result.$(field.name.value) = [$(loader.namespaces.objc)$(str($field.type)[6:-1]) fromJSON:responseObject];
     #else if str($field.type).startswith("list")
         #if str($field.type)[5:-1] in $obj.extra_struct
-        result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:responseObject];
+        result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:[responseObject objectForKey:@"$(field.name.value)"]];
         #else
-        result.$(field.name.value) = [responseObject array][$($field.inner_type_java)];
+        result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] array];
         #end if
     #else 
     result.$(field.name.value) = [responseObject objectForKey:@"$(field.name.value)"];
