@@ -137,7 +137,10 @@ def extend_func(func):
 		if return_type != "void":
 			if not return_type.endswith("*"):
 				return_type = return_type + " "
-			params.append("success:(void (^)(%s))success" % (return_type + "result"))
+			if len(params) == 0:
+				params.append("(void (^)(%s))success" % (return_type + "result"))
+			else:
+				params.append("success:(void (^)(%s))success" % (return_type + "result"))
 		return "\n".join(params)
 	func.get_objc_params = get_objc_params
 
@@ -149,8 +152,10 @@ def extend_func(func):
 
 		for p in func.arguments[1:]:
 			params.append("%s:%s" % (p.name, p.name))
-
-		params.append("success:success")
+		if len(params) == 0:
+			params.append("success")
+		else:
+			params.append("success:success")
 		return " ".join(params)
 	func.get_objc_params_for_call = get_objc_params_for_call
 
