@@ -29,6 +29,7 @@ objc_types = {
 
 objc_types_for_param = {
 	"i32": "int",
+	"bool": "bool",
 	"string": "NSString *"
 }
 
@@ -211,14 +212,15 @@ def extend_service(obj):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
 			extra_struct.add(str(func.type))
 		elif str(func.type).startswith("list<"):
-			get_objc_func_import.add('#import "' + str(func.type)[5:-1] + '.h"')
-			extra_struct.add(str(func.type)[5:-1])
+			if str(func.type)[5:-1] != "string":
+				get_objc_func_import.add('#import "' + str(func.type)[5:-1] + '.h"')
+				extra_struct.add(str(func.type)[5:-1])
 
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
 	obj.extra_struct = extra_struct
 
 def objc_need_import_type(type_str):
-	if type_str in ["int ", "(nonatomic, copy) NSString *"]:
+	if type_str in ["int ", "bool ", "NSString *", "(nonatomic, copy) NSString *"]:
 		return False
 	if type_str.endswith("*") and not type_str.startswith("NS"):
 		return True
