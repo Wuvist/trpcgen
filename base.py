@@ -194,22 +194,28 @@ def extend_service(obj):
 	obj.get_name = get_name
 
 	get_objc_func_import = set()
+	extra_struct = set()
+
 	for func in obj.functions:
 		extend_func(func)
-
+		
 		for p in func.arguments:
 			param_type = to_objc_type_for_param(str(p.type))
 			if objc_need_import_type(param_type):
 				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
+				extra_struct.add(str(p.type))
 
 		return_type = to_objc_type_for_param(str(func.type))
 
 		if not str(func.type).startswith("list<") and objc_need_import_type(return_type):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
+			extra_struct.add(str(func.type))
 		elif str(func.type).startswith("list<"):
 			get_objc_func_import.add('#import "' + str(func.type)[5:-1] + '.h"')
+			extra_struct.add(str(func.type)[5:-1])
 
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
+	obj.extra_struct = extra_struct
 
 def objc_need_import_type(type_str):
 	if type_str in ["int ", "(nonatomic, copy) NSString *"]:

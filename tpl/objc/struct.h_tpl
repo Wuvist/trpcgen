@@ -11,5 +11,6 @@ $obj.get_objc_struct_import
 #end for
 
 +($(loader.namespaces.objc)$obj.get_name[1:] *)fromJSON:(id)responseObject;
+-(NSMutableDictionary *)toDictionary;
 +(NSArray *)fromJSONArray:(id)responseObject;
 @end
