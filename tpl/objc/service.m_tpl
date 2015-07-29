@@ -23,7 +23,7 @@ $obj.get_objc_func_import
     	#if str($arg.name) == "id"
     [params setValue:Id forKey:@"$arg.name"];
     	#else
-    [params setValue:$arg.name forKey:@"$arg.name"];
+    [params setValue:[$arg.name toDictionary] forKey:@"$arg.name"];
     	#end if
     #else
     [params setValue:@($arg.name) forKey:@"$arg.name"];

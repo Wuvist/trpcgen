@@ -99,7 +99,6 @@ def extend_struct(obj):
 	get_objc_struct_import = set()
 	for field in obj.fields:
 		extend_field(field)
-		field_type = field.type_objc()
 
 		if field.is_list_type:
 			# need to fix
@@ -107,12 +106,13 @@ def extend_struct(obj):
 				extra_struct.add(field.inner_type_java)
 				get_objc_struct_import.add('#import "' + field.inner_type_java + '.h"')
 		else:
-			if objc_need_import_type(field_type):
+			if str(field.type) not in ["i32","int","double","bool","string"]:
+				extra_struct.add(str(field.type))
 				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
 	
 	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
 	obj.extra_struct = extra_struct;
-
+	
 
 def extend_func(func):
 	# final String originCode, final int offset, final int limit, final Listener<ArrayList<TCollection>> listener
