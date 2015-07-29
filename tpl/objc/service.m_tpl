@@ -25,7 +25,7 @@ $obj.get_objc_func_import
       #else if str($arg.type) in $obj.extra_struct
     [params setValue:[$arg.name toDictionary] forKey:@"$arg.name"];
     	#else
-    [params setValue:[$arg.name] forKey:@"$arg.name"];
+    [params setValue:$arg.name forKey:@"$arg.name"];
     	#end if
     #else
     [params setValue:@($arg.name) forKey:@"$arg.name"];
