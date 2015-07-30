@@ -45,10 +45,14 @@ $obj.get_objc_func_import
         	success([responseObject stringValue]);
         #else if $func.get_java_return_type == "Integer"
             success([responseObject intValue]);
+        #else if $func.get_java_return_type == "Boolean"
+            success([responseObject boolValue]);
         #else if $func.get_java_return_type.startswith("java.util.ArrayList<String")
             success([responseObject array]);
         #else if $func.get_java_return_type.startswith("java.util.ArrayList")
           success([$(loader.namespaces.objc)$func.get_java_return_inner_type[1:] fromJSONArray:responseObject]);
+        #else
+          success([$(loader.namespaces.objc)$func.get_java_return_type[1:] fromJSON:responseObject]);
         #end if
         }
         failure:^(AFHTTPRequestOperation *operation, NSError *error) {
