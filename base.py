@@ -40,6 +40,24 @@ java_ref_types = {
 	"string": "String"
 }
 
+def is_list(field_type):
+	if field_type is str:
+		return field_type.startswith("list<")
+
+	return str(field_type).startswith("list<")
+
+def need_import_type(field_type):
+	type_str = str(field_type)
+	if type_str in ["i32", "int", "bool", "string", "double"]:
+		return False
+	return True
+
+def get_inner_type(field_type):
+	type_str = str(field_type)
+	if type_str.startswith("list<"):
+		return type_str[5:-1]
+	return None
+
 def to_java_type(type_str):
 	if java_types.has_key(type_str):
 		return java_types[type_str]
@@ -102,12 +120,12 @@ def extend_struct(obj):
 		extend_field(field)
 
 		if field.is_list_type:
-			# need to fix
-			if  not field.inner_type_java in ["int","double","bool","string"]:
-				extra_struct.add(field.inner_type_java)
-				get_objc_struct_import.add('#import "' + field.inner_type_java + '.h"')
+			inner_type = get_inner_type(field.type)
+			if need_import_type(inner_type):
+				extra_struct.add(inner_type)
+				get_objc_struct_import.add('#import "' + inner_type + '.h"')
 		else:
-			if str(field.type) not in ["i32","int","double","bool","string"]:
+			if need_import_type(field.type):
 				extra_struct.add(str(field.type))
 				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
 	
@@ -201,30 +219,23 @@ def extend_service(obj):
 		extend_func(func)
 		
 		for p in func.arguments:
-			param_type = to_objc_type_for_param(str(p.type))
-			if objc_need_import_type(param_type):
+			if need_import_type(p.type):
+				param_type = to_objc_type_for_param(str(p.type))
 				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
 				extra_struct.add(str(p.type))
 
-		return_type = to_objc_type_for_param(str(func.type))
-
-		if not str(func.type).startswith("list<") and objc_need_import_type(return_type):
+		if not is_list(func.type) and need_import_type(func.type):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
 			extra_struct.add(str(func.type))
-		elif str(func.type).startswith("list<"):
-			if str(func.type)[5:-1] != "string":
-				get_objc_func_import.add('#import "' + str(func.type)[5:-1] + '.h"')
-				extra_struct.add(str(func.type)[5:-1])
+
+		elif is_list(func.type):
+			inner_type = get_inner_type(func.type)
+			if need_import_type(inner_type):
+				get_objc_func_import.add('#import "' + inner_type + '.h"')
+				extra_struct.add(inner_type)
 
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
 	obj.extra_struct = extra_struct
-
-def objc_need_import_type(type_str):
-	if type_str in ["int ", "bool ", "NSString *", "(nonatomic, copy) NSString *"]:
-		return False
-	if type_str.endswith("*") and not type_str.startswith("NS"):
-		return True
-	return False
 
 def init_module(module):
 	module.consts = []
