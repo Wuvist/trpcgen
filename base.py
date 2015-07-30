@@ -47,6 +47,8 @@ def is_list(field_type):
 	return str(field_type).startswith("list<")
 
 def need_import_type(field_type):
+	if is_list(field_type):
+		return need_import_type(get_inner_type(field_type))
 	type_str = str(field_type)
 	if type_str in ["i32", "int", "bool", "string", "double"]:
 		return False
