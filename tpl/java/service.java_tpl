@@ -5,7 +5,6 @@ package $loader.namespaces.java;
  * Don't change manually
  */
 
-import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -13,7 +12,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.common.utils.JsonUtils;
 import com.daigou.sg.rpc.RpcRequest;
 import com.fasterxml.jackson.core.JsonParser;
@@ -34,9 +32,9 @@ public class $(obj.get_name)Service {
         // Constructor hidden because this is a singleton
     }
 
-    public static void init(Context queueContext, String serviceUrl) {
+    public static void init(RequestQueue requestQueue, String serviceUrl) {
         ServiceUrl = serviceUrl;
-        queue = Volley.newRequestQueue(queueContext);
+        queue = requestQueue;
     }
 
     private static String getMsgID() {
