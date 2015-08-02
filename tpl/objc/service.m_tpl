@@ -32,6 +32,8 @@ $obj.get_objc_func_import
     #end if
     #end for
 
+    SG_LOG(@"$(obj.get_name).$(func.name) req: %@", params);
+
     #if str(func.name).startswith("User"):
     SGRpc *request = [SGRpc sharedInstanceCoreAuth];
    	#else
@@ -40,7 +42,7 @@ $obj.get_objc_func_import
     [request invokeMethod:@"$(obj.get_name).$(func.name)"
         withParameters:params
         success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            SG_LOG(@"%@", responseObject);
+            SG_LOG(@"$(obj.get_name).$(func.name) resp: %@", responseObject);
         #if $func.get_java_return_type == "String"
         	success([responseObject stringValue]);
         #else if $func.get_java_return_type == "Integer"
