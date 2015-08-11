@@ -15,59 +15,67 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "objc"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
 
 args = parser.parse_args()
 
+def write_file(fname, content):
+	dir = path.dirname(fname)
+	if not path.exists(dir):
+		os.makedirs(dir)
+
+	with open(fname, "w") as f:
+		f.write(content)
+
+lang_ext = {
+	"java": [".java"],
+	"objc": [".m", ".h"]
+}
+
+base_path = os.path.dirname(os.path.realpath(__file__))
+
 def handle_struct(module, loader):
-	for struct in module.structs:
-		print struct
+	fileExts = lang_ext[args.lang]
+	def genFile(ext):
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "struct.%s_tpl" % ext[1:])
 
-	tpl = open('tpl/go.tmpl', 'r').read().decode("utf8")
-	t = Template(tpl, searchList=[{"namespace": namespace, "filename": filename, "obj": obj}])
-	code = str(t)
+		tpl = open(tpl_path, 'r').read().decode("utf8")
+		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
+		code = str(t)
+		out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
+		write_file(out_path, code)
 
-	write_file(out_path + namespace + '/gen_' + obj.name.value.lower() + ".go", code)
-
+	for obj in module.structs:
+		for ext in fileExts:
+			genFile(ext)
 
 def handle_service(module, loader):
-	for service in module.services:
-		print service.name
-		for f in service.functions:
-			print f
+	fileExts = lang_ext[args.lang]
 
-	# if len(module.consts) > 0:
-	# 	tpl = open('tmpl/go_const.tmpl', 'r').read()
-	# 	t = Template(tpl, searchList=[{"namespace": namespace, "objs": module.consts}])
-	# 	if not path.exists(out_path + namespace):
-	# 		mkdir(out_path + namespace)
-	# 	with open(out_path + "%s/gen_%s_const.go" % (namespace, namespace), "w") as fp:
-	# 		fp.write(str(t))
+	def genFile(ext):
+		tpl_path = os.path.join(base_path, 'tpl', args.lang, "service.%s_tpl" % ext[1:])
 
-	# if len(module.enums) > 0:
-	# 	tpl = open('tmpl/go_enum.tmpl', 'r').read()
-	# 	t = Template(tpl, searchList=[{
-	# 		"namespace": namespace,
-	# 		"objs": module.enums,
-	# 		"name": filename,
-	# 	}])
-	# 	if not path.exists(out_path + namespace):
-	# 		mkdir(out_path + namespace)
-	# 	with open(out_path + "%s/gen_%s_enum.go" % (namespace, namespace), "w") as fp:
-	# 		fp.write(str(t))
+		tpl = open(tpl_path, 'r').read().decode("utf8")
+		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
+		code = str(t)
+		out_path = os.path.join(args.output_folder_path, obj.name.value + "Service" + ext)
+		write_file(out_path, code)
+
+	for obj in module.services:
+		for ext in fileExts:
+			genFile(ext)
+
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)
-	# tpl = open('tmpl/go_package.tmpl', 'r').read()
-	# t = Template(tpl, searchList=[{"namespace": namespace}])
-	# code = unicode(t)
-	# if not path.exists(out_path + namespace):
-	# 	mkdir(out_path + namespace)
-	# with open(out_path + namespace + '/gen_init.go', "w") as fp:
-	# 	fp.write(code)
+	if loader.namespaces.has_key("objc"):
+		base.objc_namespace = str(loader.namespaces["objc"])
+
+	if args.lang == None:
+		args.lang = "java"
 
 	for module in loader.modules.values():
 		if args.action == "struct":
