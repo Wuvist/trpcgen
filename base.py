@@ -20,6 +20,13 @@ java_types = {
 	"string": "String"
 }
 
+csharp_types = {
+	"bool": "bool",
+	"i32": "int",
+	"i64": "long",
+	"string": "string"
+}
+
 objc_types = {
 	"i32": "int ",
 	"string": "(nonatomic, copy) NSString *",
@@ -68,6 +75,14 @@ def to_java_type(type_str):
 		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
 	return type_str
 
+def to_csharp_type(type_str):
+	if csharp_types.has_key(type_str):
+		return csharp_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "List<" + to_csharp_type(type_str[5:-1]) + ">"
+	return type_str
+
 def to_objc_type(type_str):
 	if objc_types.has_key(type_str):
 		return objc_types[type_str]
@@ -106,6 +121,10 @@ def extend_field(field):
 		field.inner_type_java = to_java_type(type_str[5:-1])
 
 	field.type_java = type_java
+
+	def type_csharp():
+		return to_csharp_type(type_str)
+	field.type_csharp = type_csharp
 
 	def type_objc():
 		return to_objc_type(type_str)
@@ -148,6 +167,17 @@ def extend_func(func):
 			params.append("final Listener<%s> listener" % (return_type))
 		return ", ".join(params)
 	func.get_java_params = get_java_params
+
+	def get_csharp_params():
+		if len(func.arguments) == 0:
+			return ""
+		if len(func.arguments) == 1:
+			p = func.arguments[0]
+			return "%s %s" % (to_csharp_type(str(p.type)), p.name)
+
+		return "%sParam para" % (func.name)
+		
+	func.get_csharp_params = get_csharp_params
 
 	def wrap_name(name):
 		if str(name) == "id":
@@ -198,6 +228,10 @@ def extend_func(func):
 		return param_type.endswith("*")
 	func.is_arg_objc_obj = is_arg_objc_obj
 
+	def get_csharp_return_type():
+		return to_csharp_type(str(func.type))
+	func.get_csharp_return_type = get_csharp_return_type
+
 	def get_java_return_type():
 		return to_java_ref_type(str(func.type))
 
@@ -236,7 +270,20 @@ def extend_service(obj):
 				get_objc_func_import.add('#import "' + inner_type + '.h"')
 				extra_struct.add(inner_type)
 
+	def get_csharp_param_objs():
+		param_objs = []
+		for func in obj.functions:
+			if len(func.arguments) > 1:
+				param_objs.append({
+					"name": func.name.value + "Param",
+					"fields": [{"type": to_csharp_type(str(p.type)), "name": p.name} for p in func.arguments]
+				})
+
+		return param_objs
+
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
+	obj.get_csharp_param_objs = get_csharp_param_objs
+
 	obj.extra_struct = extra_struct
 
 def init_module(module):
