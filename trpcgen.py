@@ -15,7 +15,7 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "objc"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "objc", "csharp"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
@@ -32,6 +32,7 @@ def write_file(fname, content):
 
 lang_ext = {
 	"java": [".java"],
+	"csharp": [".cs"],
 	"objc": [".m", ".h"]
 }
 
@@ -61,7 +62,12 @@ def handle_service(module, loader):
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
-		out_path = os.path.join(args.output_folder_path, obj.name.value + "Service" + ext)
+
+		if args.lang == "csharp":
+			filename = "I" + obj.name.value + "Controller" + ext
+		else:
+			filename = obj.name.value + "Service" + ext
+		out_path = os.path.join(args.output_folder_path, filename)
 		write_file(out_path, code)
 
 	for obj in module.services:
