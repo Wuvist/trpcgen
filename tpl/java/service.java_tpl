@@ -58,6 +58,11 @@ public class $(obj.get_name)Service {
                             #else if $func.get_java_return_type == "Integer"
                             jp.nextToken();
                             result = jp.getIntValue();
+                            #else if $func.get_java_return_type == "Boolean"
+                            jp.nextToken();
+                            result = jp.getBooleanValue();
+                            #else if $func.get_java_return_type.startswith("java.util.ArrayList<String>")
+                            result = JsonUtils.readStringList(jp);
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList")
                             result = $(func.get_java_return_inner_type).fromJSONArray(jp);
                             #else
