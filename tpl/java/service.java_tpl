@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 public class $(obj.get_name)Service {
     private static final Gson gson = new Gson();
-    private static String ServiceUrl;
+    public static String ServiceUrl;
     private static int msgID = 1;
     private static RequestQueue queue;
 

@@ -65,7 +65,7 @@ def to_java_type(type_str):
 		return java_types[type_str]
 
 	if type_str.startswith("list<"):
-		return "java.util.ArrayList<" + to_java_type(type_str[5:-1]) + ">"
+		return "java.util.ArrayList<" + to_java_ref_type(type_str[5:-1]) + ">"
 	return type_str
 
 def to_objc_type(type_str):

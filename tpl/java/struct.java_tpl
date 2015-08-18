@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -11,7 +12,7 @@ import java.util.ArrayList;
  * Don't change manually
  */
 
-public class $obj.get_name {
+public class $obj.get_name implements Serializable {
     #for field in $obj.fields
     public $field.type_java $field.name.value;
     #end for
@@ -39,6 +40,8 @@ public class $obj.get_name {
             #if $field.is_list_type
                 #if $field.inner_type_java == "String"
                 result.$field.name.value = com.common.utils.JsonUtils.readStringList(jp);
+                #else if $field.inner_type_java == "int"
+                result.$field.name.value = com.common.utils.JsonUtils.readIntegerList(jp);
                 #else
                 result.$field.name.value = $(field.inner_type_java).fromJSONArray(jp);
                 #end if
