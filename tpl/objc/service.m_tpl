@@ -53,6 +53,8 @@ $obj.get_objc_func_import
             success(responseObject);
         #else if $func.get_java_return_type.startswith("java.util.ArrayList")
           success([$(loader.namespaces.objc)$func.get_java_return_inner_type[1:] fromJSONArray:responseObject]);
+        #else if $func.get_java_return_type == "void"
+          success();
         #else
           success([$(loader.namespaces.objc)$func.get_java_return_type[1:] fromJSON:responseObject]);
         #end if

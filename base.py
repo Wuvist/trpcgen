@@ -57,7 +57,7 @@ def need_import_type(field_type):
 	if is_list(field_type):
 		return need_import_type(get_inner_type(field_type))
 	type_str = str(field_type)
-	if type_str in ["i32", "int", "bool", "string", "double"]:
+	if type_str in ["void", "i32", "int", "bool", "string", "double"]:
 		return False
 	return True
 
@@ -196,14 +196,20 @@ def extend_func(func):
 			param_type = to_objc_type_for_param(str(p.type))
 			params.append("%s:(%s)%s" % (p.name, param_type, p.name))
 
-		return_type = to_objc_type_for_param(str(func.type))
-		if return_type != "void":
+		if str(func.type) == "void":
+			if len(params) == 0:
+				params.append("(void (^)())success")
+			else:
+				params.append("success:(void (^)())success")
+		else:
+			return_type = to_objc_type_for_param(str(func.type))
 			if not return_type.endswith("*"):
 				return_type = return_type + " "
 			if len(params) == 0:
 				params.append("(void (^)(%s))success" % (return_type + "result"))
 			else:
 				params.append("success:(void (^)(%s))success" % (return_type + "result"))
+
 		return "\n".join(params)
 	func.get_objc_params = get_objc_params
 
