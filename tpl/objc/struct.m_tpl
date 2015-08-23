@@ -19,7 +19,7 @@
     #else if str($field.type) == "bool"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] boolValue];
     #else if str($field.type) in $obj.extra_struct 
-    result.$(field.name.value) = [$(loader.namespaces.objc)$(str($field.type)[6:-1]) fromJSON:responseObject];
+    result.$(field.name.value) = [$(loader.namespaces.objc)$(str($field.type)[1:]) fromJSON:responseObject];
     #else if str($field.type).startswith("list")
         #if str($field.type)[5:-1] in $obj.extra_struct
         result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:[responseObject objectForKey:@"$(field.name.value)"]];
