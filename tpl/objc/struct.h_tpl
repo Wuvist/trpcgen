@@ -7,7 +7,11 @@ $obj.get_objc_struct_import
 @interface $(loader.namespaces.objc)$obj.get_name[1:] : NSObject
 
 #for field in $obj.fields
+#if "NSArray" in $field.type_objc
+@property (nonatomic, strong) $(field.type_objc)$field.name.value;
+#else
 @property $(field.type_objc)$field.name.value;
+#end if
 #end for
 
 +($(loader.namespaces.objc)$obj.get_name[1:] *)fromJSON:(id)responseObject;
