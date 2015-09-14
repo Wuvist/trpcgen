@@ -28,7 +28,11 @@ $obj.get_objc_func_import
     [params setValue:$arg.name forKey:@"$arg.name"];
     	#end if
     #else
+      #if str($arg.name) == "id"
+    [params setValue:Id forKey:@"$arg.name"];
+      #else
     [params setValue:@($arg.name) forKey:@"$arg.name"];
+      #end if
     #end if
     #end for
 
