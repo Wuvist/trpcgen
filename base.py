@@ -21,10 +21,10 @@ java_types = {
 }
 
 objc_types = {
-	"i32": "int ",
+	"i32": "(nonatomic, assign) NSInteger ",
 	"string": "(nonatomic, copy) NSString *",
-	"double":"double ",
-	"bool":"bool ",
+	"double":"(nonatomic, assign) double ",
+	"bool":"(nonatomic, assign) bool ",
 }
 
 objc_types_for_param = {
