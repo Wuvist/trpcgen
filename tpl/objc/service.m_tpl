@@ -48,7 +48,7 @@ $obj.get_objc_func_import
         success:^(AFHTTPRequestOperation *operation, id responseObject) {
             SG_LOG(@"$(obj.get_name).$(func.name) resp: %@", responseObject);
         #if $func.get_java_return_type == "String"
-        	success([responseObject stringValue]);
+        	success(responseObject);
         #else if $func.get_java_return_type == "Integer"
             success([responseObject intValue]);
         #else if $func.get_java_return_type == "Boolean"
