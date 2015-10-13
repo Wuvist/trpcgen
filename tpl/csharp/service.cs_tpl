@@ -1,23 +1,30 @@
+using Common.Website.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace $loader.namespaces.csharp
 {
-	#for param_obj in $obj.get_csharp_param_objs
+    #for param_obj in $obj.get_csharp_param_objs
     public class $param_obj.name {
         #for field in $param_obj.fields
         public $field.type $field.name { get; set; }
         #end for
     }
-	#end for
+    #end for
 
-    interface I$(obj.get_name)Controller
+    public abstract class I$(obj.get_name)Controller: ApiController
     {
     #for func in $obj.functions
-        Task<$func.get_csharp_return_type> $(func.name)($func.get_csharp_params);
-	#end for
+    
+        [HttpPost]
+        #if func.name.value.startswith("User")
+        [AuthUser]
+        #end if
+        public abstract Task<$func.get_csharp_return_type> $(func.name)($func.get_csharp_params);
+    #end for
     }
 }
