@@ -12,9 +12,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.common.utils.JsonUtils;
-import com.daigou.sg.rpc.RpcRequest;
-import com.daigou.sg.app.AppUrl;
+import com.daigou.selfstation.utils.JsonUtils;
+import com.daigou.selfstation.utils.RpcRequest;
+import com.daigou.selfstation.system.AppUrl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.google.gson.Gson;
 

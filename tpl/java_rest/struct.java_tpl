@@ -2,7 +2,7 @@ package $loader.namespaces.java;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
+import com.daigou.selfstation.utils.JsonUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,9 +39,9 @@ public class $obj.get_name implements Serializable {
             } else if (fieldName.equals("$field.name.value")) {
             #if $field.is_list_type
                 #if $field.inner_type_java == "String"
-                result.$field.name.value = com.common.utils.JsonUtils.readStringList(jp);
+                result.$field.name.value = JsonUtils.readStringList(jp);
                 #else if $field.inner_type_java == "int"
-                result.$field.name.value = com.common.utils.JsonUtils.readIntegerList(jp);
+                result.$field.name.value = JsonUtils.readIntegerList(jp);
                 #else
                 result.$field.name.value = $(field.inner_type_java).fromJSONArray(jp);
                 #end if
