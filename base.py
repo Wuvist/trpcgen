@@ -29,6 +29,7 @@ csharp_types = {
 
 objc_types = {
 	"i32": "int ",
+	"i64": "long long ",
 	"string": "(nonatomic, copy) NSString *",
 	"double":"double ",
 	"bool":"bool ",
@@ -57,7 +58,7 @@ def need_import_type(field_type):
 	if is_list(field_type):
 		return need_import_type(get_inner_type(field_type))
 	type_str = str(field_type)
-	if type_str in ["void", "i32", "int", "bool", "string", "double"]:
+	if type_str in ["void", "i32", "i64", "int", "bool", "string", "double"]:
 		return False
 	return True
 
