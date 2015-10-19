@@ -58,6 +58,9 @@ public class $obj.get_name implements Serializable {
                 #else if $field.type_java == "boolean"
                 jp.nextToken();
                 result.$field.name.value = jp.getBooleanValue();
+                #else if $field.type_java == "long"
+                jp.nextToken();
+                result.$field.name.value = jp.getLongValue();
                 #else 
                 result.$field.name.value = $(field.type_java).fromJSON(jp);
                 #end if
