@@ -15,7 +15,7 @@
     #if str($field.type) == "i32"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] intValue];
     #else if str($field.type) == "i64"
-    result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] longlongValue];
+    result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] longLongValue];
     #else if str($field.type) == "double"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] doubleValue];
     #else if str($field.type) == "bool"
@@ -59,7 +59,7 @@
     #for field in $obj.fields
     #if str($field.type) in $obj.extra_struct
     [resultDic setValue:[self.$(field.name.value) toDictionary]       forKey:@"$(field.name.value)"];
-    #else if str($field.type) in ["i32", "double", "bool"]
+    #else if str($field.type) in ["i32", "i64", "double", "bool"]
     [resultDic setValue:@(self.$(field.name.value))       forKey:@"$(field.name.value)"];
     #else
     [resultDic setValue:self.$(field.name.value)       forKey:@"$(field.name.value)"];
