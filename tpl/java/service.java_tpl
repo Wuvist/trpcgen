@@ -76,6 +76,8 @@ public class $(obj.get_name)Service {
                             Log.d("jsonObject", response);
                             listener.onResponse(null);
                         }
+                        #else
+                        listener.onResponse(true);
                         #end if
                     }
                 }, new Response.ErrorListener() {

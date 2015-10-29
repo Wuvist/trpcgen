@@ -164,7 +164,9 @@ def extend_func(func):
 			params.append("final %s %s" % (to_java_type(str(p.type)), p.name))
 
 		return_type = to_java_ref_type(str(func.type))
-		if return_type != "void":
+		if return_type == "void":
+			params.append("final Listener<Boolean> listener")
+		else:
 			params.append("final Listener<%s> listener" % (return_type))
 		return ", ".join(params)
 	func.get_java_params = get_java_params
