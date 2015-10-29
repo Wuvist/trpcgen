@@ -77,7 +77,9 @@ public class $(obj.get_name)Service {
                             listener.onResponse(null);
                         }
                         #else
-                        listener.onResponse(true);
+                        if (listener != null) {
+                            listener.onResponse(true);   
+                        }
                         #end if
                     }
                 }, new Response.ErrorListener() {
