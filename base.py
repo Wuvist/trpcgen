@@ -266,8 +266,13 @@ def extend_service(obj):
 		for p in func.arguments:
 			if need_import_type(p.type):
 				param_type = to_objc_type_for_param(str(p.type))
-				get_objc_func_import.add('#import "' + str(p.type) + '.h"')
-				extra_struct.add(str(p.type))
+				
+				type_for_import = str(p.type)
+				if is_list(type_for_import):
+					type_for_import = get_inner_type(type_for_import)
+
+				get_objc_func_import.add('#import "' + type_for_import + '.h"')
+				extra_struct.add(type_for_import)
 
 		if not is_list(func.type) and need_import_type(func.type):
 			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
