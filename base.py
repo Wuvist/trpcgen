@@ -152,7 +152,8 @@ def extend_struct(obj):
 				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
 	
 	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
-	obj.extra_struct = extra_struct;
+	obj.extra_struct = extra_struct
+	obj.get_inner_type = get_inner_type
 	
 
 def extend_func(func):
@@ -251,6 +252,12 @@ def extend_func(func):
 		return type_str
 	func.get_java_return_type = get_java_return_type
 	func.get_java_return_inner_type = get_java_return_inner_type
+
+	def is_list_type(s):
+		return s.startswith("list<")
+		
+	func.is_list_type = is_list_type
+	func.get_inner_type = get_inner_type
 
 def extend_service(obj):
 	def get_name():
