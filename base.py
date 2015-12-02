@@ -12,6 +12,7 @@ import traceback
 
 thrift_file = ""
 objc_namespace = ""
+javascript_namespace = ""
 
 java_types = {
 	"bool": "boolean",
@@ -46,6 +47,14 @@ java_ref_types = {
 	"i32": "Integer",
 	"i64": "Long",
 	"string": "String"
+}
+
+javascript_types = {
+	"i32":"number",
+	"i64":"number",
+	"double":"number",
+	"bool":"boolean",
+	"string":"string",
 }
 
 def is_list(field_type):
@@ -91,6 +100,18 @@ def to_objc_type(type_str):
 	if type_str.startswith("list<"):
 		return "NSArray *"
 	return objc_namespace + type_str[1:] + " *"
+
+def to_javascript_type(type_str):
+	if javascript_types.has_key(type_str):
+		return javascript_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "Array<%s>"%(to_javascript_type(type_str[5:-1]))
+
+	if type_str.find(".") > -1:
+		type_str = type_str.split(".")[-1:][0]
+
+	return javascript_namespace+type_str
 
 def to_objc_type_for_param(type_str):
 	if objc_types_for_param.has_key(type_str):
@@ -154,6 +175,7 @@ def extend_struct(obj):
 	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
 	obj.extra_struct = extra_struct
 	obj.get_inner_type = get_inner_type
+	obj.to_javascript_type = to_javascript_type
 	
 
 def extend_func(func):
@@ -258,6 +280,18 @@ def extend_func(func):
 		
 	func.is_list_type = is_list_type
 	func.get_inner_type = get_inner_type
+
+	def get_javascript_params():
+		params = [];
+
+		for p in func.arguments:
+			params.append("%s:%s"%(p.name,to_javascript_type(str(p.type))))
+
+		params.append("callbacks?:CallbackClass");
+		return ",".join(params);
+
+	func.get_javascript_params = get_javascript_params
+
 
 def extend_service(obj):
 	def get_name():

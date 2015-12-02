@@ -1,0 +1,20 @@
+/*@flow*/
+var JsonRPC = require("./../jslib/jsonrpc.js").JsonRPC;
+
+var $obj.get_name = {
+#for func in $obj.functions
+    $(func.name):function($(func.get_javascript_params)) {
+		JsonRPC.do(
+			Config.API_SHOPPINGGUIDE,
+			"$obj.get_name.$(func.name)",{
+				#for p in $func.arguments:
+				$(p.name):$(p.name),
+				#end for
+			},
+			callbacks
+		);
+    },
+#end for
+}
+
+module.exports = $obj.get_name

@@ -15,7 +15,7 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp","javascript"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
@@ -34,7 +34,8 @@ lang_ext = {
 	"java": [".java"],
 	"java_rest": [".java"],
 	"csharp": [".cs"],
-	"objc": [".m", ".h"]
+	"objc": [".m", ".h"],
+	"javascript":[".js"],
 }
 
 base_path = os.path.dirname(os.path.realpath(__file__))
@@ -78,8 +79,13 @@ def handle_service(module, loader):
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)
+
 	if loader.namespaces.has_key("objc"):
 		base.objc_namespace = str(loader.namespaces["objc"])
+	
+	if loader.namespaces.has_key("javascript"):
+		base.javascript_namespace = str(loader.namespaces["javascript"])
+
 
 	if args.lang == None:
 		args.lang = "java"
@@ -87,7 +93,7 @@ def main(thrift_idl):
 	for module in loader.modules.values():
 		if args.action == "struct":
 			handle_struct(module, loader)
-		elif args.action == "serivce":
+		elif args.action == "service":
 			handle_service(module, loader)
 		else:
 			handle_struct(module, loader)
