@@ -50,6 +50,7 @@ java_ref_types = {
 }
 
 javascript_types = {
+	"int":"number",
 	"i32":"number",
 	"i64":"number",
 	"double":"number",
@@ -113,6 +114,13 @@ def to_javascript_type(type_str):
 
 	return javascript_namespace+type_str
 
+def to_javascript_callback_success_type(type_str):
+	if type_str == "void":
+		return "emptyCallback"
+
+	return "%sCallback"%(to_javascript_type(type_str).replace("<","").replace(">",""))
+
+
 def to_objc_type_for_param(type_str):
 	if objc_types_for_param.has_key(type_str):
 		return objc_types_for_param[type_str]
@@ -172,10 +180,27 @@ def extend_struct(obj):
 				extra_struct.add(str(field.type))
 				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
 	
+	def to_javascript_callbacks():
+		classes = []
+		baseType = obj.get_name()
+		
+		types = [
+			"list<%s>"%baseType,
+			"list<list<%s>>"%baseType,
+			baseType,
+		]
+
+		for oneType in types:
+			classes.append("declare class %s{success:(data:%s)=>void;error?:(data:any)=>void}"%(to_javascript_callback_success_type(oneType),to_javascript_type(oneType)))
+			
+		return "\n".join(classes)
+
+
 	obj.get_objc_struct_import = "\n".join(get_objc_struct_import)
 	obj.extra_struct = extra_struct
 	obj.get_inner_type = get_inner_type
 	obj.to_javascript_type = to_javascript_type
+	obj.to_javascript_callbacks = to_javascript_callbacks
 	
 
 def extend_func(func):
@@ -282,12 +307,13 @@ def extend_func(func):
 	func.get_inner_type = get_inner_type
 
 	def get_javascript_params():
+
 		params = [];
 
 		for p in func.arguments:
 			params.append("%s:%s"%(p.name,to_javascript_type(str(p.type))))
 
-		params.append("callbacks?:CallbackClass");
+		params.append("callback?:%s"%(to_javascript_callback_success_type(str(func.type))));
 		return ",".join(params);
 
 	func.get_javascript_params = get_javascript_params

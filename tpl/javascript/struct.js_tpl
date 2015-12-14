@@ -1,4 +1,6 @@
 /*@flow*/
+$obj.to_javascript_callbacks
+
 declare class $(loader.namespaces.javascript)$(obj.get_name){
 	#for field in $obj.fields
 	#if $field.required

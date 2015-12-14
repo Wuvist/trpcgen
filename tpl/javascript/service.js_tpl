@@ -11,7 +11,7 @@ var $obj.get_name = {
 				$(p.name):$(p.name),
 				#end for
 			},
-			callbacks
+			callback
 		);
     },
 #end for
