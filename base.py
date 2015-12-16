@@ -29,16 +29,16 @@ csharp_types = {
 }
 
 objc_types = {
-	"i32": "int ",
+	"i32": "NSInteger ",
 	"i64": "long long ",
 	"string": "(nonatomic, copy) NSString *",
 	"double":"double ",
-	"bool":"bool ",
+	"bool":"BOOL ",
 }
 
 objc_types_for_param = {
-	"i32": "int",
-	"bool": "bool",
+	"i32": "NSInteger",
+	"bool": "BOOL",
 	"string": "NSString *"
 }
 

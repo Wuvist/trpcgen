@@ -13,7 +13,7 @@
 
     #for field in $obj.fields
     #if str($field.type) == "i32"
-    result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] intValue];
+    result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] integerValue];
     #else if str($field.type) == "i64"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] longLongValue];
     #else if str($field.type) == "double"
