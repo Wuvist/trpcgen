@@ -58,6 +58,16 @@ javascript_types = {
 	"string":"string",
 }
 
+go_types = {
+	"int":"int",
+	"i32":"int",
+	"i64":"int64",
+	"float":"float32",
+	"double":"float64",
+	"string":"string",
+	"bool":"bool"
+}
+
 def is_list(field_type):
 	if field_type is str:
 		return field_type.startswith("list<")
@@ -119,6 +129,18 @@ def to_javascript_callback_success_type(type_str):
 		return "emptyCallback"
 
 	return "%sCallback"%(to_javascript_type(type_str).replace("<","").replace(">",""))
+
+def to_go_type(type_str):
+	if go_types.has_key(type_str):
+		return go_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "[]%s"%(to_go_type(type_str[5:-1]))
+
+	if type_str.find(".") > -1:
+		type_str = type_str.split(".")[-1:][0]
+
+	return "*%s"%(javascript_namespace+type_str)
 
 
 def to_objc_type_for_param(type_str):
@@ -201,6 +223,7 @@ def extend_struct(obj):
 	obj.get_inner_type = get_inner_type
 	obj.to_javascript_type = to_javascript_type
 	obj.to_javascript_callbacks = to_javascript_callbacks
+	obj.to_go_type = to_go_type
 	
 
 def extend_func(func):
@@ -318,6 +341,26 @@ def extend_func(func):
 
 	func.get_javascript_params = get_javascript_params
 
+	def get_go_params():
+		params = [];
+
+		for p in func.arguments:
+			params.append("%s %s"%(p.name,to_go_type(str(p.type))))
+
+		return ",".join(params);
+
+	def get_go_params_for_call():
+		params = [];
+
+		for p in func.arguments:
+			params.append("data.%s%s"%((str(p.name)[0:1]).upper(),str(p.name)[1:]))
+
+		return ",".join(params);
+
+	func.get_go_params = get_go_params;
+	func.get_go_params_for_call = get_go_params_for_call;
+
+
 
 def extend_service(obj):
 	def get_name():
@@ -366,6 +409,7 @@ def extend_service(obj):
 	obj.get_csharp_param_objs = get_csharp_param_objs
 
 	obj.extra_struct = extra_struct
+	obj.to_go_type = to_go_type
 
 def init_module(module):
 	module.consts = []

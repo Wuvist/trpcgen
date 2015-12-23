@@ -15,7 +15,7 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp","javascript"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp","javascript","go"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
@@ -36,6 +36,7 @@ lang_ext = {
 	"csharp": [".cs"],
 	"objc": [".m", ".h"],
 	"javascript":[".js"],
+	"go":[".go"]
 }
 
 base_path = os.path.dirname(os.path.realpath(__file__))

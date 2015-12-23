@@ -1,0 +1,62 @@
+package iservices
+
+import (
+	"encoding/json"
+	"io/ioutil"
+	. "models"
+
+	"github.com/gin-gonic/gin"
+)
+
+var $(obj.get_name[0:1].lower())$(obj.get_name[1:])ServiceImplement I$obj.get_name
+
+type I$obj.get_name interface {
+	
+#for funcObj in $obj.functions
+	$(funcObj.name)($(funcObj.get_go_params)) (error , $(obj.to_go_type(str($funcObj.type))))
+#end for
+
+}
+
+#for funcObj in $obj.functions
+	#if len($funcObj.arguments) > 0
+type $(obj.get_name[0:1].lower())$(obj.get_name[1:])Service$(funcObj.name)Parameter struct {
+		#for arg in $funcObj.arguments
+	$(str(arg.name)[0:1].upper())$(str(arg.name)[1:]) $(obj.to_go_type(str($arg.type))) `json:"$arg.name"`
+		#end for
+}
+	#end if
+#end for
+
+
+#for funcObj in $obj.functions
+
+func $(obj.get_name[0:1].lower())$(obj.get_name[1:])Service$(funcObj.name)Callback(ctx *gin.Context) {
+	#if len($funcObj.arguments) > 0
+	var data $(obj.get_name[0:1].lower())$(obj.get_name[1:])Service$(funcObj.name)Parameter
+	reqData,errForRead := ioutil.ReadAll(ctx.Request.Body)
+	if errForRead != nil{
+		ctx.JSON(500,errForRead)
+		return
+	}
+	errForConvert := json.Unmarshal(reqData,&data)
+	if errForConvert != nil{
+		ctx.JSON(500,errForConvert)
+		return
+	}
+	#end if
+	err, obj := $(obj.get_name[0:1].lower())$(obj.get_name[1:])ServiceImplement.$(funcObj.name)($(funcObj.get_go_params_for_call))
+	handleResponse(ctx, err, obj)
+}
+
+#end for
+
+func Init$(obj.get_name)Service(router *gin.Engine, serviceImpl I$obj.get_name) {
+	$(obj.get_name[0:1].lower())$(obj.get_name[1:])ServiceImplement = serviceImpl
+	service := router.Group("/WebHomepage")
+	{
+	#for funcObj in $obj.functions
+		service.POST("/$(funcObj.name)", $(obj.get_name[0:1].lower())$(obj.get_name[1:])Service$(funcObj.name)Callback)
+	#end for
+	}
+}

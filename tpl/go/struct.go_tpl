@@ -1,0 +1,7 @@
+package models
+
+type $(loader.namespaces.javascript)$(obj.get_name) struct {
+	#for field in $obj.fields
+	$(field.name.value[0:1].upper())$(field.name.value[1:]) $(obj.to_go_type(str($field.type))) `json:"$(field.name.value)"`
+	#end for
+}
