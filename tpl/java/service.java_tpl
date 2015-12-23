@@ -8,11 +8,11 @@ package $loader.namespaces.java;
 import android.util.Log;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.common.utils.JsonUtils;
+import com.daigou.sg.app.DgApplication;
 import com.daigou.sg.rpc.RpcRequest;
 import com.daigou.sg.app.AppUrl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,14 +26,9 @@ import java.util.HashMap;
 public class $(obj.get_name)Service {
     private static final Gson gson = new Gson();
     private static int msgID = 1;
-    private static RequestQueue queue;
 
     private $(obj.get_name)Service() {
         // Constructor hidden because this is a singleton
-    }
-
-    public static void init(RequestQueue requestQueue) {
-        queue = requestQueue;
     }
 
     private static String getMsgID() {
@@ -92,8 +87,8 @@ public class $(obj.get_name)Service {
         }) {
             @Override
             public byte[] getBody() {
-                final ArrayList<Object> params = new ArrayList<Object>();
-                HashMap<String, Object> msg = new HashMap<String, Object>();
+                final ArrayList<Object> params = new ArrayList<>();
+                HashMap<String, Object> msg = new HashMap<>();
                 #for p in $func.arguments
                 params.add($p.name);
                 #end for
@@ -105,7 +100,7 @@ public class $(obj.get_name)Service {
                 return gson.toJson(msg).getBytes(Charset.forName("UTF-8"));
             }
         };
-        queue.add(req);
+        DgApplication.getQueue().add(req);
     }
 
 #end for
