@@ -36,7 +36,7 @@ public class $obj.get_name implements Serializable {
             
             if (false) {
             #for field in $obj.fields
-            } else if (fieldName.equals("$field.name.value")) {
+            } else if ("$field.name.value".equals(fieldName)) {
             #if $field.is_list_type
                 #if $field.inner_type_java == "String"
                 result.$field.name.value = com.common.utils.JsonUtils.readStringList(jp);
