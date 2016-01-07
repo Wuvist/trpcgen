@@ -39,7 +39,8 @@ objc_types = {
 objc_types_for_param = {
 	"i32": "NSInteger",
 	"bool": "BOOL",
-	"string": "NSString *"
+	"string": "NSString *",
+	"double":"double"
 }
 
 java_ref_types = {
