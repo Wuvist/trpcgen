@@ -85,13 +85,11 @@ def main(thrift_idl):
 	
 	if loader.namespaces.has_key("javascript"):
 		base.javascript_namespace = str(loader.namespaces["javascript"])
-	print(loader.includes)
 
 	if args.lang == None:
 		args.lang = "java"
 
 	for module in loader.modules.values():
-		print(module)
 		if args.action == "struct":
 			handle_struct(module, loader)
 		elif args.action == "service":
