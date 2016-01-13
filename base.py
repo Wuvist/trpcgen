@@ -48,7 +48,8 @@ java_ref_types = {
 	"bool": "Boolean",
 	"i32": "Integer",
 	"i64": "Long",
-	"string": "String"
+	"string": "String",
+    "double": "Double"
 }
 
 javascript_types = {
