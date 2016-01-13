@@ -35,11 +35,12 @@ class Loader(object):
     self.logger = logger
     self.thrifts = {}
     self.modules = {}
+    self.includes = {}
     self.parser = Parser()
     self.namespaces = {}
     self.process(self.root)
 
-  def process(self, root):
+  def process(self, root, is_include = False):
     real_root = os.path.realpath(root)
 
     if real_root in self.thrifts:
@@ -50,18 +51,28 @@ class Loader(object):
     with open(real_root) as fp:
       parent = self.thrifts[real_root] = self.parser.parse(fp.read())
     
-    for space in parent.namespaces:
-      self.namespaces[space.language_id] = space.name
+    if is_include:
+      left = real_root.rindex(os.sep)
+      include_file = real_root[left+1:].split(".")[0]
+      
+      namespaces = {}
+      for space in parent.namespaces:
+        namespaces[space.language_id] = space.name
+      self.includes[include_file] = namespaces
+    else:
+      for space in parent.namespaces:
+        self.namespaces[space.language_id] = space.name
 
     parent_name = os.path.basename(real_root)
     parent_name, _ = os.path.splitext(parent_name)
     if parent_name in self.modules:
       self.logger('Warning: ambiguous include (module %s already exists)' % parent_name)
-    self.modules[parent_name] = SymbolTable(parent)
+    if not is_include:
+      self.modules[parent_name] = SymbolTable(parent)
 
     for include in parent.includes:
       real_path = os.path.join(os.path.dirname(real_root), include.path.value)
-      self.process(real_path)
+      self.process(real_path, True)
 
   def dump(self):
     for filename, thrift in self.thrifts.items():
