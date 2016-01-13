@@ -17,7 +17,7 @@ public class $obj.get_name implements Serializable {
     public $field.type_java $field.name.value;
     #end for
 
-    static $obj.get_name fromJSON(JsonParser jp) throws IOException
+    public static $obj.get_name fromJSON(JsonParser jp) throws IOException
     {
         // Sanity check: verify that we got "Json Object":
         if (jp.nextToken() != JsonToken.START_OBJECT) {
@@ -27,7 +27,7 @@ public class $obj.get_name implements Serializable {
         return doFromJSON(jp);
     }
 
-    private static $obj.get_name doFromJSON(JsonParser jp) throws IOException
+    public static $obj.get_name doFromJSON(JsonParser jp) throws IOException
     {
         $obj.get_name result = new $(obj.get_name)();
         // Iterate over object fields:
@@ -71,7 +71,7 @@ public class $obj.get_name implements Serializable {
         return result;
     }
 
-    static ArrayList<$obj.get_name> fromJSONArray(JsonParser jp) throws IOException
+    public static ArrayList<$obj.get_name> fromJSONArray(JsonParser jp) throws IOException
     {
         if (jp.nextToken() != JsonToken.START_ARRAY) {
             throw new IOException("Expected data to start with a $obj.get_name array");
