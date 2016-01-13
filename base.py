@@ -89,7 +89,7 @@ def to_java_type(type_str):
 
 	if "." in type_str:
 		ref, type_name = type_str.split(".")
-		return loader.includes[ref]["java"] + "." + type_name
+		return loader.includes[ref]["java"].value + "." + type_name
 
 	return type_str
 
