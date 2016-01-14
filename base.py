@@ -11,6 +11,7 @@ from os import path, mkdir
 import traceback
 
 thrift_file = ""
+loader = None
 objc_namespace = ""
 javascript_namespace = ""
 
@@ -47,7 +48,8 @@ java_ref_types = {
 	"bool": "Boolean",
 	"i32": "Integer",
 	"i64": "Long",
-	"string": "String"
+	"string": "String",
+	"double": "Double"
 }
 
 javascript_types = {
@@ -85,6 +87,11 @@ def to_java_type(type_str):
 
 	if type_str.startswith("list<"):
 		return "java.util.ArrayList<" + to_java_ref_type(type_str[5:-1]) + ">"
+
+	if "." in type_str:
+		ref, type_name = type_str.split(".")
+		return loader.includes[ref]["java"].value + "." + type_name
+
 	return type_str
 
 def to_csharp_type(type_str):
@@ -136,6 +143,11 @@ def to_java_ref_type(type_str):
 
 	if type_str.startswith("list<"):
 		return "java.util.ArrayList<" + to_java_ref_type(type_str[5:-1]) + ">"
+
+	if "." in type_str:
+		ref, type_name = type_str.split(".")
+		return loader.includes[ref]["java"].value + "." + type_name
+
 	return type_str
 
 def extend_field(field):
@@ -399,7 +411,7 @@ def init_module(module):
 				obj.labels[i.tag] = label_anno[0]
 
 def load_thrift(thrift_idl):
-	global thrift_file
+	global thrift_file, loader
 	thrift_file = thrift_idl
 	loader = Loader(thrift_idl, lambda x: x)
 

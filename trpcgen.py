@@ -86,7 +86,6 @@ def main(thrift_idl):
 	if loader.namespaces.has_key("javascript"):
 		base.javascript_namespace = str(loader.namespaces["javascript"])
 
-
 	if args.lang == None:
 		args.lang = "java"
 
