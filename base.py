@@ -108,6 +108,11 @@ def to_objc_type(type_str):
 
 	if type_str.startswith("list<"):
 		return "NSArray *"
+
+	if "." in type_str:
+		ref, type_name = type_str.split(".")
+		return loader.includes[ref]["objc"].value + type_name[1:]
+
 	return objc_namespace + type_str[1:] + " *"
 
 def to_javascript_type(type_str):
@@ -162,6 +167,7 @@ def extend_field(field):
 	if type_str.startswith("list<"):
 		field.is_list_type = True
 		field.inner_type_java = to_java_type(type_str[5:-1])
+		field.inner_type_objc = to_objc_type(type_str[5:-1])
 
 	field.type_java = type_java
 
@@ -187,11 +193,20 @@ def extend_struct(obj):
 			inner_type = get_inner_type(field.type)
 			if need_import_type(inner_type):
 				extra_struct.add(inner_type)
-				get_objc_struct_import.add('#import "' + inner_type + '.h"')
+				type_str = inner_type
+
+				if "." in type_str: 
+					get_objc_struct_import.add('#import "' + type_str.replace(".", "_") + '.h"')
+				else:
+					get_objc_struct_import.add('#import "' + objc_namespace + "_" + type_str[1:] + '.h"')
 		else:
 			if need_import_type(field.type):
 				extra_struct.add(str(field.type))
-				get_objc_struct_import.add('#import "' + str(field.type) + '.h"')
+				type_str = str(field.type)
+				if "." in type_str: 
+					get_objc_struct_import.add('#import "' + type_str.replace(".", "_") + '.h"')
+				else:
+					get_objc_struct_import.add('#import "' + objc_namespace + "_" + type_str[1:] + '.h"')
 	
 	def to_javascript_callbacks():
 		classes = []
@@ -305,11 +320,28 @@ def extend_func(func):
 	def get_java_return_type():
 		return to_java_ref_type(str(func.type))
 
+	def get_objc_return_type():
+		type_str = str(func.type)
+		if "." in type_str:
+			space, type_str = type_str.split(".")
+			return space + type_str[1:] 
+		
+		return loader.namespaces.objc + to_java_ref_type(type_str)[1:]
+
 	def get_java_return_inner_type():
 		type_str = str(func.type)
 		if type_str.startswith("list<"):
 			return to_java_ref_type(type_str[5:-1])
 		return type_str
+
+	def get_objc_return_inner_type():
+		type_str = str(func.type)
+		if type_str.startswith("list<"):
+			return to_objc_type(type_str[5:-1])
+		return type_str
+
+	func.get_objc_return_type = get_objc_return_type
+	func.get_objc_return_inner_type = get_objc_return_inner_type
 	func.get_java_return_type = get_java_return_type
 	func.get_java_return_inner_type = get_java_return_inner_type
 
@@ -351,17 +383,17 @@ def extend_service(obj):
 				if is_list(type_for_import):
 					type_for_import = get_inner_type(type_for_import)
 
-				get_objc_func_import.add('#import "' + type_for_import + '.h"')
+				get_objc_func_import.add('#import "' + type_for_import.replace(".", "_") + '.h"')
 				extra_struct.add(type_for_import)
 
 		if not is_list(func.type) and need_import_type(func.type):
-			get_objc_func_import.add('#import "' + str(func.type) + '.h"')
+			get_objc_func_import.add('#import "' + str(func.type).replace(".", "_") + '.h"')
 			extra_struct.add(str(func.type))
 
 		elif is_list(func.type):
 			inner_type = get_inner_type(func.type)
 			if need_import_type(inner_type):
-				get_objc_func_import.add('#import "' + inner_type + '.h"')
+				get_objc_func_import.add('#import "' + inner_type.replace(".", "_") + '.h"')
 				extra_struct.add(inner_type)
 
 	def get_csharp_param_objs():
@@ -411,9 +443,15 @@ def init_module(module):
 				obj.labels[i.tag] = label_anno[0]
 
 def load_thrift(thrift_idl):
-	global thrift_file, loader
+	global thrift_file, loader, objc_namespace, javascript_namespace
 	thrift_file = thrift_idl
 	loader = Loader(thrift_idl, lambda x: x)
+
+	if loader.namespaces.has_key("objc"):
+		objc_namespace = str(loader.namespaces["objc"])
+
+	if loader.namespaces.has_key("javascript"):
+		javascript_namespace = str(loader.namespaces["javascript"])
 
 	for module in loader.modules.values():
 		init_module(module)

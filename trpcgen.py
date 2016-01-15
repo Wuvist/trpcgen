@@ -48,7 +48,13 @@ def handle_struct(module, loader):
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
-		out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
+		if args.lang == "objc":
+			start = loader.root.rindex(os.sep)
+			end = loader.root.rindex(".")
+			filename = loader.root[start + 1:end] + "_" + obj.name.value
+			out_path = os.path.join(args.output_folder_path, filename + ext)
+		else:
+			out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
 		write_file(out_path, code)
 
 	for obj in module.structs:
@@ -79,13 +85,7 @@ def handle_service(module, loader):
 
 def main(thrift_idl):
 	loader = base.load_thrift(thrift_idl)
-
-	if loader.namespaces.has_key("objc"):
-		base.objc_namespace = str(loader.namespaces["objc"])
 	
-	if loader.namespaces.has_key("javascript"):
-		base.javascript_namespace = str(loader.namespaces["javascript"])
-
 	if args.lang == None:
 		args.lang = "java"
 

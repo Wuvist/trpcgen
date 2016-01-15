@@ -3,7 +3,7 @@
 // Don't change manually
 //
 
-\#import "$(obj.get_name).h"
+\#import "$(loader.namespaces.objc)_$(obj.get_name).h"
 
 @implementation $(loader.namespaces.objc)$obj.get_name[1:]
 
@@ -21,10 +21,10 @@
     #else if str($field.type) == "bool"
     result.$(field.name.value) = [[responseObject objectForKey:@"$(field.name.value)"] boolValue];
     #else if str($field.type) in $obj.extra_struct 
-    result.$(field.name.value) = [$(loader.namespaces.objc)$(str($field.type)[1:]) fromJSON:[responseObject objectForKey:@"$(field.name.value)"]];
+    result.$(field.name.value) = [$field.type_objc fromJSON:[responseObject objectForKey:@"$(field.name.value)"]];
     #else if str($field.type).startswith("list")
         #if str($field.type)[5:-1] in $obj.extra_struct
-        result.$(field.name.value) = [$(loader.namespaces.objc)$($field.inner_type_java[1:]) fromJSONArray:[responseObject objectForKey:@"$(field.name.value)"]];
+        result.$(field.name.value) = [$field.inner_type_objc fromJSONArray:[responseObject objectForKey:@"$(field.name.value)"]];
         #else
         result.$(field.name.value) = [responseObject objectForKey:@"$(field.name.value)"];
         #end if

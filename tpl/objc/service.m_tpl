@@ -53,11 +53,11 @@ $obj.get_objc_func_import
         #else if $func.get_java_return_type.startswith("java.util.ArrayList<String")
             success(responseObject);
         #else if $func.get_java_return_type.startswith("java.util.ArrayList")
-          success([$(loader.namespaces.objc)$func.get_java_return_inner_type[1:] fromJSONArray:responseObject]);
+          success([$func.get_objc_return_inner_type fromJSONArray:responseObject]);
         #else if $func.get_java_return_type == "void"
           success();
         #else
-          success([$(loader.namespaces.objc)$func.get_java_return_type[1:] fromJSON:responseObject]);
+          success([$func.get_objc_return_type fromJSON:responseObject]);
         #end if
         }
         failure:^(AFHTTPRequestOperation *operation, NSError *error) {
