@@ -69,7 +69,7 @@ def handle_service(module, loader):
 		if args.lang == "csharp":
 			filename = "I" + obj.name.value + "Controller" + ext
 		elif args.lang == "csharp_jrpc":
-			filename = obj.name.value+"Handler"+ext
+			filename = obj.name.value + "Handler" + ext
 		else:
 			filename = obj.name.value + "Service" + ext
 		out_path = os.path.join(args.output_folder_path, filename)
