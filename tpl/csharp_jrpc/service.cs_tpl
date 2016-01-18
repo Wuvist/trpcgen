@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AustinHarris.JsonRpc;
+using Zen.WebService.BusinessHandler;
+
+namespace Zen.WebService.BusinessHandler
+{
+    public class $(obj.get_name)Handler: TRpcService
+    {
+    #for func in $obj.functions
+
+        [JsonRpcMethod("$(obj.get_name).$(func.name)")]
+        public $func.get_csharp_return_type $(func.name)($func.get_csharp_jrpc_params)
+        {
+            throw new NotImplementedException();
+        }
+
+    #end for
+    }
+}
