@@ -243,6 +243,18 @@ def extend_func(func):
 		
 	func.get_csharp_params = get_csharp_params
 
+	def get_csharp_jrpc_params():
+		if len(func.arguments) == 0:
+			return ""
+		params = []
+		for p in func.arguments:
+			params.append("%s %s" % (to_csharp_type(str(p.type)), p.name))
+
+		return ", ".join(params)
+
+	func.get_csharp_jrpc_params = get_csharp_jrpc_params()
+
+
 	def wrap_name(name):
 		if str(name) == "id":
 			return "Id"
