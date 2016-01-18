@@ -244,7 +244,7 @@ def extend_func(func):
 	func.get_csharp_params = get_csharp_params
 
 	def get_csharp_jrpc_params():
-		if len(func.arguments) ==0:
+		if len(func.arguments) == 0:
 			return ""
 		params = []
 		for p in func.arguments:
