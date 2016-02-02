@@ -61,6 +61,15 @@ javascript_types = {
 	"string":"string",
 }
 
+golang_types= {
+	"bool":"bool",
+	"int":"int",
+	"i32":"int32",
+	"i64":"int64",
+	"double":"float64",
+	"string":"string"
+}
+
 def is_list(field_type):
 	if field_type is str:
 		return field_type.startswith("list<")
@@ -128,6 +137,15 @@ def to_javascript_callback_success_type(type_str):
 
 	return "%sCallback"%(to_javascript_type(type_str).replace("<","").replace(">",""))
 
+def to_golang_type(type_str):
+	if	golang_types.has_key(type_str):
+		return golang_types[type_str]
+
+	if type_str.startswith("list<"):
+		return "[]"+ to_csharp_type(type_str[5:-1])
+
+	return type_str
+
 
 def to_objc_type_for_param(type_str):
 	if objc_types_for_param.has_key(type_str):
@@ -172,6 +190,10 @@ def extend_field(field):
 	def type_objc():
 		return to_objc_type(type_str)
 	field.type_objc = type_objc
+
+	def type_golang():
+		return  to_golang_type(type_str)
+	field.type_golang  = type_golang()
 
 def extend_struct(obj):
 	def get_name():
@@ -253,6 +275,14 @@ def extend_func(func):
 		return ", ".join(params)
 
 	func.get_csharp_jrpc_params = get_csharp_jrpc_params()
+
+	def get_golang_echo_params():
+		if len(func.arguments) == 0:
+			return ""
+
+		return "args *%sArgs," % (func.name)
+
+	func.get_golang_echo_params = get_golang_echo_params()
 
 
 	def wrap_name(name):
@@ -387,8 +417,20 @@ def extend_service(obj):
 
 		return param_objs
 
+	def get_golang_param_objs():
+		param_objs = []
+		for func in obj.functions:
+			if len(func.arguments) >= 1:
+				param_objs.append({
+					"name": func.name.value + "Args",
+					"fields": [{"type": to_golang_type(str(p.type)), "name": p.name} for p in func.arguments]
+				})
+
+		return param_objs
+
 	obj.get_objc_func_import = "\n".join(get_objc_func_import)
 	obj.get_csharp_param_objs = get_csharp_param_objs
+	obj.get_golang_param_objs = get_golang_param_objs
 
 	obj.extra_struct = extra_struct
 
