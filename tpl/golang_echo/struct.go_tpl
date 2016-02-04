@@ -3,7 +3,7 @@
  * Don't change manually
  */
 
-package models
+package $loader.namespaces.go
 
 type $obj.get_name struct{
      #for field in $obj.fields

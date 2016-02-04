@@ -3,7 +3,7 @@
  * Don't change manually
  */
 
-package services
+package $loader.namespaces.go
 
 import (
     "net/http"
@@ -30,7 +30,7 @@ type $param_obj.name struct{
 
 #for func in $obj.functions
 
-func (service *$(obj.get_name)Service) $(func.name)(r *http.Request, $func.get_golang_echo_params reply *Reply) error {
+func (service *$(obj.get_name)Service) $(func.name)(request *http.Request, $func.get_golang_echo_params reply *Reply) error {
     return nil
 }
 

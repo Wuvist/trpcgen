@@ -50,6 +50,10 @@ def handle_struct(module, loader):
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
+
+		if ext == ".go":
+			obj.name.value = (obj.name.value[0:1]).lower()+obj.name.value[1:]
+
 		out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
 		write_file(out_path, code)
 
@@ -73,6 +77,10 @@ def handle_service(module, loader):
 			filename = obj.name.value + "Handler" + ext
 		else:
 			filename = obj.name.value + "Service" + ext
+
+		if ext ==".go":
+			filename= filename[0:1].lower()+filename[1:]
+
 		out_path = os.path.join(args.output_folder_path, filename)
 		write_file(out_path, code)
 
