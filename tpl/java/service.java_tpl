@@ -52,6 +52,8 @@ public class $(obj.get_name)Service {
                             result = BaseModule.fromJSON(response, Integer.class);
                             #else if $func.get_java_return_type == "Boolean"
                             result = BaseModule.fromJSON(response, Boolean.class);
+                            #else if $func.get_java_return_type == "Double"
+                            result = BaseModule.fromJSON(response, Double.class);
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList<String>")
                             result = BaseModule.fromJSONArray(response, String.class);
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList")
