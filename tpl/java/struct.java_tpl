@@ -1,5 +1,6 @@
 package $loader.namespaces.java;
 
+import com.daigou.sg.rpc.BaseModule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -12,77 +13,10 @@ import java.util.ArrayList;
  * Don't change manually
  */
 
-public class $obj.get_name implements Serializable {
+public class $obj.get_name extends BaseModule<$obj.get_name> implements Serializable {
+
     #for field in $obj.fields
     public $field.type_java $field.name.value;
     #end for
 
-    public static $obj.get_name fromJSON(JsonParser jp) throws IOException
-    {
-        // Sanity check: verify that we got "Json Object":
-        if (jp.nextToken() != JsonToken.START_OBJECT) {
-            throw new IOException("Expected data to start with a $obj.get_name Object");
-        }
-
-        return doFromJSON(jp);
-    }
-
-    public static $obj.get_name doFromJSON(JsonParser jp) throws IOException
-    {
-        $obj.get_name result = new $(obj.get_name)();
-        // Iterate over object fields:
-        while (jp.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = jp.getCurrentName();
-            
-            if (false) {
-            #for field in $obj.fields
-            } else if ("$field.name.value".equals(fieldName)) {
-            #if $field.is_list_type
-                #if $field.inner_type_java == "String"
-                result.$field.name.value = com.common.utils.JsonUtils.readStringList(jp);
-                #else if $field.inner_type_java == "int"
-                result.$field.name.value = com.common.utils.JsonUtils.readIntegerList(jp);
-                #else
-                result.$field.name.value = $(field.inner_type_java).fromJSONArray(jp);
-                #end if
-            #else
-                #if $field.type_java == "String"
-                jp.nextToken();
-                result.$field.name.value = jp.getText();
-                #else if $field.type_java == "int"
-                jp.nextToken();
-                result.$field.name.value = jp.getIntValue();
-                #else if $field.type_java == "double"
-                jp.nextToken();
-                result.$field.name.value = jp.getDoubleValue();
-                #else if $field.type_java == "boolean"
-                jp.nextToken();
-                result.$field.name.value = jp.getBooleanValue();
-                #else if $field.type_java == "long"
-                jp.nextToken();
-                result.$field.name.value = jp.getLongValue();
-                #else 
-                result.$field.name.value = $(field.type_java).fromJSON(jp);
-                #end if
-            #end if
-            #end for
-            }
-        }
-        return result;
-    }
-
-    public static ArrayList<$obj.get_name> fromJSONArray(JsonParser jp) throws IOException
-    {
-        if (jp.nextToken() != JsonToken.START_ARRAY) {
-            throw new IOException("Expected data to start with a $obj.get_name array");
-        }
-
-        ArrayList<$obj.get_name> result = new ArrayList<$obj.get_name>();
-
-        // Iterate over object fields:
-        while (jp.nextToken() != JsonToken.END_ARRAY) {
-            result.add(doFromJSON(jp));
-        }
-        return result;
-    }
 }
