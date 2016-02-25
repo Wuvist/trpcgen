@@ -15,7 +15,7 @@ parser.add_argument('action', metavar='action', type=str,
                    help='generation action: struct|service|both', choices=["struct", "service", "both"])
 parser.add_argument('thrift_file_path', metavar='thrift_file_path', type=str,
                    help='input thrift file path')
-parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp","javascript","csharp_jrpc"],
+parser.add_argument('-l', '--lang', metavar='lang', type=str, choices=["java", "java_rest", "objc", "csharp","javascript","csharp_jrpc","golang_echo"],
                    help='language to be generated: java')
 parser.add_argument('output_folder_path', metavar='output_folder_path', type=str,
                    help='out folder path')
@@ -36,7 +36,8 @@ lang_ext = {
 	"csharp": [".cs"],
 	"objc": [".m", ".h"],
 	"javascript":[".js"],
-	"csharp_jrpc":[".cs"]
+	"csharp_jrpc":[".cs"],
+	"golang_echo":[".go"]
 }
 
 base_path = os.path.dirname(os.path.realpath(__file__))
@@ -49,6 +50,10 @@ def handle_struct(module, loader):
 		tpl = open(tpl_path, 'r').read().decode("utf8")
 		t = Template(tpl, searchList=[{"loader": loader, "obj": obj}])
 		code = str(t)
+
+		if ext == ".go":
+			obj.name.value = (obj.name.value[0:1]).lower()+obj.name.value[1:]
+
 		out_path = os.path.join(args.output_folder_path, obj.name.value + ext)
 		write_file(out_path, code)
 
@@ -72,6 +77,10 @@ def handle_service(module, loader):
 			filename = obj.name.value + "Handler" + ext
 		else:
 			filename = obj.name.value + "Service" + ext
+
+		if ext ==".go":
+			filename= filename[0:1].lower()+filename[1:]
+
 		out_path = os.path.join(args.output_folder_path, filename)
 		write_file(out_path, code)
 
