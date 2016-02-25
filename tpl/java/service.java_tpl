@@ -13,9 +13,10 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.common.utils.JsonUtils;
 import com.daigou.sg.app.DgApplication;
+import com.daigou.sg.rpc.BaseModule;
+import com.daigou.sg.rpc.GsonUtils;
 import com.daigou.sg.rpc.RpcRequest;
 import com.daigou.sg.app.AppUrl;
-import com.fasterxml.jackson.core.JsonParser;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class $(obj.get_name)Service {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = GsonUtils.getGsonInstance();
     private static int msgID = 1;
 
     private $(obj.get_name)Service() {
@@ -45,28 +46,24 @@ public class $(obj.get_name)Service {
                         #if $func.get_java_return_type != "void"
                         try {
                             $func.get_java_return_type result;
-                            JsonParser jp = JsonUtils.getJsonRpcResult(response);
                             #if $func.get_java_return_type == "String"
-                            jp.nextToken();
-                            result = jp.getText();
+                            result = BaseModule.fromJSON(response, String.class);
                             #else if $func.get_java_return_type == "Integer"
-                            jp.nextToken();
-                            result = jp.getIntValue();
+                            result = BaseModule.fromJSON(response, Integer.class);
                             #else if $func.get_java_return_type == "Boolean"
-                            jp.nextToken();
-                            result = jp.getBooleanValue();
+                            result = BaseModule.fromJSON(response, Boolean.class);
+                            #else if $func.get_java_return_type == "Double"
+                            result = BaseModule.fromJSON(response, Double.class);
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList<String>")
-                            result = JsonUtils.readStringList(jp);
+                            result = BaseModule.fromJSONArray(response, String.class);
                             #else if $func.get_java_return_type.startswith("java.util.ArrayList")
-                            result = $(func.get_java_return_inner_type).fromJSONArray(jp);
+                            result = BaseModule.fromJSONArray(response, new $(func.get_java_return_inner_type)().getTClass());
                             #else
-                            result = $(func.get_java_return_type).fromJSON(jp);
+                            result = BaseModule.fromJSON(response, new $(func.get_java_return_inner_type)().getTClass());
                             #end if
                             
-                            jp.close();
-
                             listener.onResponse(result);
-                        } catch (IOException ex) {
+                        } catch (Exception ex) {
                             Log.d("ex", ex.toString());
                             Log.d("jsonObject", response);
                             listener.onResponse(null);
